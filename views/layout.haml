@@ -1,0 +1,31 @@
+!!!
+%html
+  %head
+    %title Rails Girls Chicago - Coaches Guide
+    -#Bootstrap
+    %script{:src => "https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js", :type => "text/javascript"}
+    %script{:src => "/js/bootstrap.min.js", :type => "text/javascript"}
+    %link{:href => "/css/bootstrap.min.css", :rel => "stylesheet", :type => "text/css"}
+
+    -#SyntaxHighlighter
+    %script{:src => "/js/XRegExp.js", :type => "text/javascript"}
+    %script{:src => "/js/shCore.js", :type => "text/javascript"}
+    %script{:src => "/js/shBrushRuby.js", :type => "text/javascript"}
+    %script{:src => "/js/shBrushJScript.js", :type => "text/javascript"}
+    %script{:src => "/js/shBrushPlain.js", :type => "text/javascript"}
+    %script{:src => "/js/shBrushXml.js", :type => "text/javascript"}
+    %link{:href => "/css/shCore.css", :rel => "stylesheet", :type => "text/css"}
+    %link{:href => "/css/shThemeDefault.css", :rel => "stylesheet", :type => "text/css"}
+
+    -#RailsGirlsCoaches
+    %link{:href => "/css/rails-girls-coaches.css", :rel => "stylesheet", :type => "text/css"}
+
+  %body
+    .container
+      =yield
+
+:plain
+  <!-- Finally, to actually run the highlighter, you need to include this JS on your page -->
+  <script type="text/javascript">
+    SyntaxHighlighter.all()
+  </script>

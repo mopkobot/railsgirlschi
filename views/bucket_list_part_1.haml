@@ -1,0 +1,319 @@
+%h2 Feature: User should be able to view a list of their Bucket Lists
+
+.well
+  %span.label.label-inverse Terminal
+  Commands to type in terminal have black labels
+  %br
+  %span.label.label-warning Text-Editor
+  Code to write in your text-editor have yellow labels
+  %br
+  %span.label.label-success Action
+  These are action items, such as visiting a page in your browser and clicking around
+
+  .alert.alert-success Action Items for Coaches
+  .alert.alert-info Tips for Participants
+
+:ruby
+  code = <<-HEREDOC
+  gem install rails
+  rails new bucket_list --skip-test-unit
+  cd bucket_list
+  rails generate resource Lists name:string reason:string
+  rake db:migrate
+  rails server
+  HEREDOC
+= tutorial_for("plain", "Create a new Rails Project", code)
+.alert.alert-success Coaches, give quick explaination about what each command does.
+
+%div.tut
+  %span.label.label-success Action
+  Visit in your browser <code>http://localhost:3000</code>
+  .well This is the default Rails landing page.  Let's try removing it and see what happens...
+
+%div.tut
+  %span.label.label-success Action
+  Delete the file <code>public/index.html</code> and re-visit <code>http://localhost:3000</code>
+  .well Now what do you see?
+
+:ruby
+  code = <<-HEREDOC
+    BucketList::Application.routes.draw do
+      root :to => 'lists#index'
+      resources :lists
+    end
+  HEREDOC
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [2,3])
+
+
+:ruby
+  code = <<-HEREDOC
+    class ListsController < ApplicationController
+      def index
+       @lists = List.all
+      end
+    end
+    HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>: Create an index action in the ListsController", code, [2, 3, 4])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Bucket Lists</h2>
+
+  <% @lists.each do |list| %>
+    <%= list.name %>
+    <%= list.reason %>
+  <% end %>
+  HEREDOC
+= tutorial_for("xml","Create <code>app/views/lists/index.html.erb</code>: Create an index view", code)
+
+.well
+  Try visitng the page again.  It should be blank because we haven't created any Lists yet.
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  list = List.new
+  list.name = "Learn Ruby"
+  list.reason = "I want to create cool webapps"
+  list.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Create some Lists", code)
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000</code>
+  .well You should now see your newly created List.  If you don't, please ask your coach for some help.
+
+
+
+
+%h2 Part 2
+%h2 Goal: Create a form so that users can create lists from the Bucket List site
+
+:ruby
+  code = <<-HEREDOC
+  def new
+    @list = List.new
+  end
+
+  def create
+    @list = List.new(params[:list])
+    if @list.save
+      redirect_to lists_url
+    else
+      render action: "new"
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, create the <strong>new</strong> and <strong>create</strong> actions in the controller.", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Create New Bucket List</h2>
+  <%= form_for @list do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :reason %><br />
+      <%= form.text_field :reason %>
+    </div>
+
+    <p><%= form.submit %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("xml","Create <code>app/views/lists/new.html.erb</code>, create a form for users to create a new List", code)
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000/lists/new</code>
+  .well This is the new form you just created!  Try creating a few Lists from this web form.
+
+%h2 Part 3
+%h2 Goal: Create a form so that users can edit their Bucket Lists
+
+:ruby
+  code = <<-HEREDOC
+  def edit
+    @list = List.find(params[:id])
+  end
+
+  def update
+    @list = List.find(params[:id])
+
+    if @list.update_attributes(params[:list])
+      redirect_to lists_path
+    else
+      render action: "edit"
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/controllers/lists_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Edit <%= @list.name %></h2>
+
+  <%= form_for @list do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :reason %><br />
+      <%= form.text_field :reason %>
+    </div>
+
+    <p><%= form.submit %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("xml","Create <code>app/views/lists/edit.html.erb</code>, write html/erb for a form to edit a List", code)
+
+
+:ruby
+  code = <<-HEREDOC
+  <% @lists.each do |list| %>
+    <%= list.name %>
+    <%= list.reason %>
+    <%= link_to "Edit", edit_list_path(list) %>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a link to the Edit page for a List inside the @lists.each block", code, [4])
+
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000</code>
+  .well Click on the Edit link for a Bucket List.  You should be able to update your list.  If you can't, please ask your coach for some help.
+
+%h2 Feature: User should be able to view an individual Bucket List in it's own view
+
+:ruby
+  code = <<-HEREDOC
+  class ListsController < ApplicationController
+    def show
+      @list = List.find(params[:id])
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add an show action.", code, [2,3,4])
+
+:ruby
+  code = <<-HEREDOC
+  <h2><%= @list.name %></h2>
+  <p><%= @list.reason %></p>
+  HEREDOC
+= tutorial_for("xml","Create <code>app/views/lists/show.html.erb</code>, write html/erb code to show List information.", code)
+
+:ruby
+  code = <<-HEREDOC
+  <% @lists.each do |list| %>
+    <%= link_to list.name, list_path(list) %>
+    <%= list.reason %>
+    <%= link_to "Edit", edit_list_path(list) %>
+  <% end %>
+  HEREDOC
+= tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, change each List name into a link to it's show page.", code, [2])
+
+= action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Bucket List.  You should be able to see a page of just that Bucket List.")
+
+%h2 Feature: User should be able to delete Bucket Lists
+
+:ruby
+  code = <<-HEREDOC
+  def destroy
+    @list = List.find(params[:id])
+    @list.destroy
+    redirect_to lists_url
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add a destroy action.", code, [2,3,4])
+
+:ruby
+  code = <<-HEREDOC
+  <% @lists.each do |list| %>
+    <%= link_to list.name, list_path(list) %>
+    <%= list.reason %>
+    <%= link_to "Edit", edit_list_path(list) %>
+    <%= link_to 'Destroy', list, method: :delete, data: { confirm: 'Are you sure?' } %>
+  <% end %>
+  HEREDOC
+= tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, change each List name into a link to it's show page.", code, [5])
+
+
+%h2 Feature: App should be pretty!
+%p Let's dress up the app a little with some styling.  
+%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
+%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
+
+
+:ruby
+  code = <<-HEREDOC
+  group :assets do
+    gem 'twitter-bootstrap-rails'
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+
+
+:ruby
+  code = <<-HEREDOC
+  bundle install
+  rails generate bootstrap:install
+  HEREDOC
+= tutorial_for("plain","Install the newly added gem", code)
+
+= action_for("Restart the Server and <code>http://localhost:3000</code>", "After restarting the server, you should now notice the look of the webpage changed slightly.")
+
+:ruby
+  code = <<-HEREDOC
+  <div class="container">
+    <%= yield %>
+  </div>
+  HEREDOC
+= tutorial_for("xml","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [1, 3])
+
+:ruby
+  code = <<-HEREDOC
+  <div class="hero-unit">
+    <h1>My Bucket Lists</h1>
+    <p>This is a site for you to track what you want to accomplish in life!</p>
+    <p><%= link_to "Get Started", new_list_url, :class => "brn btn-primary btn-large" %></p>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <th>Name</th>
+      <th>Reason</td>
+      <th>Actions</td>
+    </thead>
+    <tbody>
+      <tr>
+        <% @lists.each do |list| %>
+          <td><%= link_to list.name, list_path(list) %></td>
+          <td><%= list.reason %></td>
+          <td><%= link_to "Edit", edit_list_path(list) %> | <%= link_to 'Destroy', list, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  HEREDOC
+= tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, add a hero-unit and a table around existing code.", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!  Checkout the Twitter Bootstrap documentation and continue dressing up your webapp.")
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %ol Add Flash messages for actions, such as un/successfully adding, updating, deleting lists, etc (<a href="http://guides.rubyonrails.org/action_controller_overview.html#the-flash" target="new">Flash Messages</a>).
+    %ol Add model validations to List (<a href="http://guides.rubyonrails.org/active_record_validations_callbacks.html#validation-helpers" target="new">Validation Helpers</a>).
+    %ol Extract the forms into a partial (<a href="http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials" target="new">Using Partials</a>)
+
+:ruby
+  code = <<-HEREDOC
+  HEREDOC
+= tutorial_for("ruby","", code)

@@ -1,0 +1,31 @@
+%h2 Feature: User should be able to add "steps" to achieve Bucket Lists
+
+:ruby
+  code = <<-HEREDOC
+  bundle exec rails generate resource step description:string complete:boolean list_id:integer
+  HEREDOC
+= tutorial_for("plain","Create a Steps resource", code)
+
+:ruby
+  code = <<-HEREDOC
+  class CreateTasks < ActiveRecord::Migration
+    def change
+      create_table :steps do |t|
+        t.string :description
+        t.boolean :complete, :default => false
+        t.integer :list_id
+
+        t.timestamps
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>db/migrate/20120928XXXXXX_create_steps.rb</code>, default completed to false", code, [5])
+
+:ruby
+  code = <<-HEREDOC
+  resources :lists do
+    resources :tasks
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the steps route under lists", code)
