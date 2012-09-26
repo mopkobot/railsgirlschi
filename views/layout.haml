@@ -2,6 +2,7 @@
 %html
   %head
     %title Rails Girls Chicago - Coaches Guide
+
     -#Bootstrap
     %script{:src => "https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js", :type => "text/javascript"}
     %script{:src => "/js/bootstrap.min.js", :type => "text/javascript"}
@@ -19,13 +20,48 @@
 
     -#RailsGirlsCoaches
     %link{:href => "/css/rails-girls-coaches.css", :rel => "stylesheet", :type => "text/css"}
+    %script{:src => "/js/json2.js", :type => "text/javascript"}
+    %script{:src => "/js/dumbFormState.js", :type => "text/javascript"}
 
   %body
+    .navbar.navbar-fixed-top
+      .navbar-inner
+        %a.brand{:href => "/"} &nbsp;&nbsp;Rails Girls Chicago
+        %ul.nav{:role => "navigation"}
+          %li.dropdown
+            %a#drop1.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", :role => "button"}
+              Bucket List
+              %b.caret
+            %ul.dropdown-menu{"aria-labelledby" => "drop1", :role => "menu"}
+              %li
+                %a{:href => "/bucket_list_part_1", :tabindex => "-1"} Part 1
+              %li
+                %a{:href => "/bucket_list_part_2", :tabindex => "-1"} Part 2
+              %li
+                %a{:href => "/upload_site", :tabindex => "-1"} Part 3
+          %li.dropdown
+            %a#drop2.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", :role => "button"}
+              Dropdown 2
+              %b.caret
+            %ul.dropdown-menu{"aria-labelledby" => "drop2", :role => "menu"}
+              %li
+                %a{:href => "#", :tabindex => "-1"} Action
+              %li
+                %a{:href => "#", :tabindex => "-1"} Another action
+              %li
+                %a{:href => "#", :tabindex => "-1"} Something else here
+              %li.divider
+              %li
+                %a{:href => "#", :tabindex => "-1"} Separated link
     .container
       =yield
 
 :plain
   <!-- Finally, to actually run the highlighter, you need to include this JS on your page -->
   <script type="text/javascript">
-    SyntaxHighlighter.all()
+    jQuery(function(){
+      $('.dropdown-toggle').dropdown()
+      SyntaxHighlighter.all()
+      jQuery('form').dumbFormState();
+    });
   </script>

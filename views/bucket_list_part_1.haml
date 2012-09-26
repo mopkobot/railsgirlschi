@@ -1,17 +1,5 @@
-%h2 Feature: User should be able to view a list of their Bucket Lists
-
-.well
-  %span.label.label-inverse Terminal
-  Commands to type in terminal have black labels
-  %br
-  %span.label.label-warning Text-Editor
-  Code to write in your text-editor have yellow labels
-  %br
-  %span.label.label-success Action
-  These are action items, such as visiting a page in your browser and clicking around
-
-  .alert.alert-success Action Items for Coaches
-  .alert.alert-info Tips for Participants
+%h3 User should be able to...
+%h3 Feature 1.1 - View a list of their Bucket Lists
 
 :ruby
   code = <<-HEREDOC
@@ -85,11 +73,7 @@
   Visit <code>http://localhost:3000</code>
   .well You should now see your newly created List.  If you don't, please ask your coach for some help.
 
-
-
-
-%h2 Part 2
-%h2 Goal: Create a form so that users can create lists from the Bucket List site
+%h3 Feature 1.2 - Create Bucket Lists using a form on the site
 
 :ruby
   code = <<-HEREDOC
@@ -132,8 +116,7 @@
   Visit <code>http://localhost:3000/lists/new</code>
   .well This is the new form you just created!  Try creating a few Lists from this web form.
 
-%h2 Part 3
-%h2 Goal: Create a form so that users can edit their Bucket Lists
+%h3 Feature 1.3 - Edit Bucket Lists from a form
 
 :ruby
   code = <<-HEREDOC
@@ -190,7 +173,7 @@
   Visit <code>http://localhost:3000</code>
   .well Click on the Edit link for a Bucket List.  You should be able to update your list.  If you can't, please ask your coach for some help.
 
-%h2 Feature: User should be able to view an individual Bucket List in it's own view
+%h3 Feature 1.4 - View each Bucket List separately on its own page
 
 :ruby
   code = <<-HEREDOC
@@ -221,7 +204,7 @@
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Bucket List.  You should be able to see a page of just that Bucket List.")
 
-%h2 Feature: User should be able to delete Bucket Lists
+%h3 Feature 1.5 - Delete Bucket Lists
 
 :ruby
   code = <<-HEREDOC
@@ -245,7 +228,7 @@
 = tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, change each List name into a link to it's show page.", code, [5])
 
 
-%h2 Feature: App should be pretty!
+%h3 Feature 1.6 - See a pretty site!
 %p Let's dress up the app a little with some styling.  
 %p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
 %p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
@@ -312,8 +295,3 @@
     %ol Add Flash messages for actions, such as un/successfully adding, updating, deleting lists, etc (<a href="http://guides.rubyonrails.org/action_controller_overview.html#the-flash" target="new">Flash Messages</a>).
     %ol Add model validations to List (<a href="http://guides.rubyonrails.org/active_record_validations_callbacks.html#validation-helpers" target="new">Validation Helpers</a>).
     %ol Extract the forms into a partial (<a href="http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials" target="new">Using Partials</a>)
-
-:ruby
-  code = <<-HEREDOC
-  HEREDOC
-= tutorial_for("ruby","", code)

@@ -1,4 +1,16 @@
+body {
+  padding-top: 50px;
+}
+
 .tut {
   padding-top: 30px;
   padding-bottom: 5px;
+}
+
+#style-guide div {
+  margin: 20px 0px 20px 0px;
+}
+
+input {
+  margin: 0px 5px 0px 0px !important;
 }

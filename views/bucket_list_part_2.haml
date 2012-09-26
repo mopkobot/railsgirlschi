@@ -1,14 +1,15 @@
-%h2 Feature: User should be able to add "steps" to achieve Bucket Lists
+%h3 User should be able to...
+%h3 Feature 2.1 - Add "steps" to each Bucket Lists
 
 :ruby
   code = <<-HEREDOC
-  bundle exec rails generate resource step description:string complete:boolean list_id:integer
+  rails generate resource step description:string complete:boolean list_id:integer
   HEREDOC
 = tutorial_for("plain","Create a Steps resource", code)
 
 :ruby
   code = <<-HEREDOC
-  class CreateTasks < ActiveRecord::Migration
+  class CreateSteps < ActiveRecord::Migration
     def change
       create_table :steps do |t|
         t.string :description
@@ -20,12 +21,160 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>db/migrate/20120928XXXXXX_create_steps.rb</code>, default completed to false", code, [5])
+= tutorial_for("ruby","Open <code>db/migrate/20120928XXXXXX_create_steps.rb</code>, add a default completed to false", code, [5])
 
 :ruby
   code = <<-HEREDOC
+  rake db:migrate
+  HEREDOC
+
+= tutorial_for("plain","Migrate the database", code)
+:ruby
+  code = <<-HEREDOC
   resources :lists do
-    resources :tasks
+    resources :steps
   end
   HEREDOC
 = tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the steps route under lists", code)
+
+:ruby
+  code = <<-HEREDOC
+  class List < ActiveRecord::Base
+    attr_accessible :name, :reason
+
+    has_many :steps
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/list.rb</code>, add an association it has to tasks", code, [4])
+
+:ruby
+  code = <<-HEREDOC
+  class Step < ActiveRecord::Base
+    attr_accessible :complete, :description, :list_id
+
+    belongs_to :list
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/step.rb</code>, add the corresponding association", code, [4])
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  list = List.first
+  step = list.steps.new
+  step.description = "write a step here"
+  step.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Try adding some steps in rails console", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "See the steps underneath each task")
+
+:ruby
+  code = <<-HEREDOC
+  <ul>
+  <% @list.tasks.each do |task| %>
+    <li><%= task.description %> | <%= task.complete %></li>
+  <% end %>
+  </ul>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add code to display the steps for each list", code)
+
+%h3 Feature 1.2 - Add "steps" from the website
+
+:ruby
+  code = <<-HEREDOC
+  def show
+    @list = List.find(params[:id])
+    @step = @step.tasks.new
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, to allow users to create tasks from the website, start by creating a step object in the show action", code, [3])
+
+:ruby
+  code = <<-HEREDOC
+  def create
+    @list = List.find(params[:list_id])
+    @task = @list.tasks.new(params[:task])
+    if @task.save
+      redirect_to list_url(@list)
+    else
+      redirect_to list_url(@list)
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/steps_controller.rb</code>, create a create action", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Add Task</h2>
+  <p>Baby steps will help you achieve your goal</p>
+
+  <%= form_for [@list, @list.tasks.new]  do |form| %>
+    <%= form.text_field :description %>
+    <%= form.submit %>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add in code to display the web form to create steps", code)
+
+%h3 Feature 1.3 - Mark steps as complete
+:ruby
+  code = <<-HEREDOC
+  def complete
+    @list = List.find(params[:list_id])
+    @step = Step.find(params[:id])
+    @step.complete = true
+    @step.save
+    redirect_to list_url(@list)
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/step.rb</code>, create an action for marking steps as complete", code)
+
+:ruby
+  code = <<-HEREDOC
+  match 'lists/:list_id/steps/:id/complete' => 'steps#complete', :as => :step_complete
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, create a custom route to the completed action", code)
+
+:ruby
+  code = <<-HEREDOC
+  <ul>
+    <% @list.tasks.each do |task| %>
+      <li><%= task.description %> | <%= task.complete %> | <%= button_to "Complete", complete_task_path(@list.id, task.id) %></li>
+    <% end %>
+  </ul>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add a complete button that goes to the custom route", code, [3])
+
+%h3 Feature 1.4 - View completed steps and incomplete steps in separate sections
+:ruby
+  code = <<-HEREDOC
+  class Task < ActiveRecord::Base
+    attr_accessible :complete, :description, :list_id
+
+    belongs_to :list
+    scope :complete, where(:complete => true)
+    scope :incomplete, where(:complete => false)
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/step.rb</code>, add a named scope for complete and incomplete steps", code, [3])
+
+:ruby
+  code = <<-HEREDOC
+  <h3>Steps I Need to Take</h3>
+  <ul>
+    <% @list.tasks.incomplete.each do |task| %>
+      <li><%= task.description %> | <%= task.complete %> | <%= button_to "Complete", complete_task_path(@list.id, task.id) %></li>
+    <% end %>
+  </ul>
+
+
+  <h3>Steps I Completed!</h3>
+  <ul>
+    <% @list.tasks.complete.each do |task| %>
+      <li><%= task.description %> | <%= task.complete %> | <%= button_to "Complete", complete_task_path(@list.id, task.id) %></li>
+    <% end %>
+  </ul>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, using the namedscopes, separate the steps into incomplete and complete", code, [3])
+

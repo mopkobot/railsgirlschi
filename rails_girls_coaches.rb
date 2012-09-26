@@ -20,7 +20,8 @@ class RailsGirlsCoaches < Sinatra::Base
     def action_for(action, desc)
       html = <<-HEREDOC
       <div class="tut">
-        <span class="label label-success">Action</span>
+        <form><input type="checkbox" name="tut"></form><span class="label label-success">Action</span>
+      
         #{action}
         <div class="well">#{desc}</div>
       </div>
@@ -38,7 +39,7 @@ class RailsGirlsCoaches < Sinatra::Base
 
 html = <<-END
 <div class="tut">
-<span class="label label-#{label}">#{application}</span>
+<form><input type="checkbox" name="#{desc}" value="what"></form><span class="label label-#{label}">#{application}</span>
 #{desc}
 <script type="syntaxhighlighter" class="brush: #{brush_type}; highlight: #{highlight}"><![CDATA[
 #{commands}
