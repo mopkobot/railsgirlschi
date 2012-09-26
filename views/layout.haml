@@ -2,17 +2,17 @@
 %html
   %head
     %script{:language => "JavaScript1.2"}
-      function disableselect(e){
-      return false
-      }
-      function reEnable(){
-      return true
-      }
-      document.onselectstart=new Function ("return false")
-      if (window.sidebar){
-      document.onmousedown=disableselect
-      document.onClick=reEnable
-      }
+      -#function disableselect(e){
+      -#return false
+      -#}
+      -#function reEnable(){
+      -#return true
+      -#}
+      -#document.onselectstart=new Function ("return false")
+      -#if (window.sidebar){
+      -#document.onmousedown=disableselect
+      -#document.onClick=reEnable
+      -#}
     %title Rails Girls Chicago - Coaches Guide
 
     -#Bootstrap

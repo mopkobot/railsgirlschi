@@ -1,7 +1,8 @@
 .page-header
   %h2
     Bucket List - Part 1
-    %small User should be able to...
+  %p Bucket List is an application that allows users to keep a list what they want to do in life (e.g. "Buckets").  Users can enter intermediate "steps" under each Bucket that would help them achieve their goals.
+%h3 User should be able to...
 %h3 Feature 1.1 - View a list of their Bucket Lists
 :ruby
   code = <<-HEREDOC
@@ -230,66 +231,6 @@
 = tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, change each List name into a link to it's show page.", code, [5])
 
 
-%h3 Feature 1.6 - See a pretty site!
-%p Let's dress up the app a little with some styling.  
-%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
-%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
-
-
-:ruby
-  code = <<-HEREDOC
-  group :assets do
-    gem 'twitter-bootstrap-rails'
-  end
-  HEREDOC
-= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
-
-
-:ruby
-  code = <<-HEREDOC
-  bundle install
-  rails generate bootstrap:install
-  HEREDOC
-= tutorial_for("plain","Install the newly added gem", code)
-
-= action_for("Restart the Server and <code>http://localhost:3000</code>", "After restarting the server, you should now notice the look of the webpage changed slightly.")
-
-:ruby
-  code = <<-HEREDOC
-  <div class="container">
-    <%= yield %>
-  </div>
-  HEREDOC
-= tutorial_for("xml","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [1, 3])
-
-:ruby
-  code = <<-HEREDOC
-  <div class="hero-unit">
-    <h1>My Bucket Lists</h1>
-    <p>This is a site for you to track what you want to accomplish in life!</p>
-    <p><%= link_to "Get Started", new_list_url, :class => "brn btn-primary btn-large" %></p>
-  </div>
-
-  <table class="table table-striped">
-    <thead>
-      <th>Name</th>
-      <th>Reason</td>
-      <th>Actions</td>
-    </thead>
-    <tbody>
-      <tr>
-        <% @lists.each do |list| %>
-          <td><%= link_to list.name, list_path(list) %></td>
-          <td><%= list.reason %></td>
-          <td><%= link_to "Edit", edit_list_path(list) %> | <%= link_to 'Destroy', list, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-  HEREDOC
-= tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, add a hero-unit and a table around existing code.", code)
-
-= action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!  Checkout the Twitter Bootstrap documentation and continue dressing up your webapp.")
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:

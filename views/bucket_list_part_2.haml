@@ -1,8 +1,68 @@
 .page-header
   %h2
     Bucket List - Part 2
-    %small User should be able to...
-%h3 Feature 2.1 - Add "steps" to each Bucket Lists
+  %p Bucket List is an application that allows users to keep a list what they want to do in life (e.g. "Buckets").  Users can enter intermediate "steps" under each Bucket that would help them achieve their goals.
+
+%h3 User should be able to...
+%h3 Feature 2.1 - See a pretty site!
+%p Let's dress up the app a little with some styling.
+%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
+%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
+
+:ruby
+  code = <<-HEREDOC
+  group :assets do
+    gem 'twitter-bootstrap-rails'
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+
+:ruby
+  code = <<-HEREDOC
+  bundle install
+  rails generate bootstrap:install
+  HEREDOC
+= tutorial_for("plain","Install the newly added gem", code)
+
+= action_for("Restart the Server and <code>http://localhost:3000</code>", "After restarting the server, you should now notice the look of the webpage changed slightly.")
+
+:ruby
+  code = <<-HEREDOC
+  <div class="container">
+    <%= yield %>
+  </div>
+  HEREDOC
+= tutorial_for("xml","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [1, 3])
+
+:ruby
+  code = <<-HEREDOC
+  <div class="hero-unit">
+    <h1>My Bucket Lists</h1>
+    <p>This is a site for you to track what you want to accomplish in life!</p>
+    <p><%= link_to "Get Started", new_list_url, :class => "brn btn-primary btn-large" %></p>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <th>Name</th>
+      <th>Reason</td>
+      <th>Actions</td>
+    </thead>
+    <tbody>
+      <tr>
+        <% @lists.each do |list| %>
+          <td><%= link_to list.name, list_path(list) %></td>
+          <td><%= list.reason %></td>
+          <td><%= link_to "Edit", edit_list_path(list) %> | <%= link_to 'Destroy', list, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  HEREDOC
+= tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, add a hero-unit and a table around existing code.", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!  Checkout the Twitter Bootstrap documentation and continue dressing up your webapp.")
+%h3 Feature 2.2 - Add "steps" to each Bucket Lists
 
 :ruby
   code = <<-HEREDOC
@@ -83,7 +143,7 @@
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add code to display the steps for each list", code)
 
-%h3 Feature 1.2 - Add "steps" from the website
+%h3 Feature 2.3 - Add "steps" from the website
 
 :ruby
   code = <<-HEREDOC
@@ -120,7 +180,7 @@
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add in code to display the web form to create steps", code)
 
-%h3 Feature 1.3 - Mark steps as complete
+%h3 Feature 2.4 - Mark steps as complete
 :ruby
   code = <<-HEREDOC
   def complete
@@ -149,7 +209,7 @@
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add a complete button that goes to the custom route", code, [3])
 
-%h3 Feature 1.4 - View completed steps and incomplete steps in separate sections
+%h3 Feature 2.5 - View completed steps and incomplete steps in separate sections
 :ruby
   code = <<-HEREDOC
   class Step < ActiveRecord::Base
@@ -160,7 +220,7 @@
     scope :incomplete, where(:complete => false)
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/step.rb</code>, add a named scope for complete and incomplete steps", code, [3])
+= tutorial_for("ruby","Open <code>app/models/step.rb</code>, add a named scope for complete and incomplete steps", code)
 
 :ruby
   code = <<-HEREDOC
@@ -179,5 +239,12 @@
     <% end %>
   </ul>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, using the namedscopes, separate the steps into incomplete and complete", code, [3])
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, using the namedscopes, separate the steps into incomplete and complete", code)
 
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %ol Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
+    %ol Extract duplicated logic in Steps controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
+    %ol Order the steps by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
+    %ol Also, try the suggestions at the end of Part 1 (<a href="/bucket_list_part_1" target="new">Bucket List Part 1</a>).
