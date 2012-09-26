@@ -1,6 +1,7 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
 require 'sinatra/base';
 require 'haml'
+require 'to_slug.rb'
 
 class RailsGirlsCoaches < Sinatra::Base
   get '/' do
@@ -15,13 +16,16 @@ class RailsGirlsCoaches < Sinatra::Base
     haml :bucket_list_part_2
   end
 
+  get '/upload_site' do
+    haml :upload_site
+  end
 
   helpers do
     def action_for(action, desc)
       html = <<-HEREDOC
       <div class="tut">
-        <form><input type="checkbox" name="tut"></form><span class="label label-success">Action</span>
-      
+        <input type="checkbox" name="tut" value="#{desc.to_slug}"><span class="label label-success">Action</span>
+
         #{action}
         <div class="well">#{desc}</div>
       </div>
@@ -39,7 +43,7 @@ class RailsGirlsCoaches < Sinatra::Base
 
 html = <<-END
 <div class="tut">
-<form><input type="checkbox" name="#{desc}" value="what"></form><span class="label label-#{label}">#{application}</span>
+<input type="checkbox" name="tut" value="#{desc.to_slug}"><span class="label label-#{label}">#{application}</span>
 #{desc}
 <script type="syntaxhighlighter" class="brush: #{brush_type}; highlight: #{highlight}"><![CDATA[
 #{commands}

@@ -1,4 +1,7 @@
-%h3 User should be able to...
+.page-header
+  %h2
+    Bucket List - Part 2
+    %small User should be able to...
 %h3 Feature 2.1 - Add "steps" to each Bucket Lists
 
 :ruby
@@ -45,7 +48,7 @@
     has_many :steps
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/list.rb</code>, add an association it has to tasks", code, [4])
+= tutorial_for("ruby","Open <code>app/models/list.rb</code>, add an association to the steps", code, [4])
 
 :ruby
   code = <<-HEREDOC
@@ -68,13 +71,13 @@
   HEREDOC
 = tutorial_for("plain","Try adding some steps in rails console", code)
 
-= action_for("Visit <code>http://localhost:3000</code>", "See the steps underneath each task")
+= action_for("Visit <code>http://localhost:3000</code>", "See the steps underneath each list")
 
 :ruby
   code = <<-HEREDOC
   <ul>
-  <% @list.tasks.each do |task| %>
-    <li><%= task.description %> | <%= task.complete %></li>
+  <% @list.steps.each do |step| %>
+    <li><%= step.description %> | <%= step.complete %></li>
   <% end %>
   </ul>
   HEREDOC
@@ -86,17 +89,17 @@
   code = <<-HEREDOC
   def show
     @list = List.find(params[:id])
-    @step = @step.tasks.new
+    @step = @list.steps.new
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, to allow users to create tasks from the website, start by creating a step object in the show action", code, [3])
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, to allow users to create steps from the website, start by creating a step object in the show action", code, [3])
 
 :ruby
   code = <<-HEREDOC
   def create
     @list = List.find(params[:list_id])
-    @task = @list.tasks.new(params[:task])
-    if @task.save
+    @step = @list.steps.new(params[:step])
+    if @step.save
       redirect_to list_url(@list)
     else
       redirect_to list_url(@list)
@@ -107,10 +110,10 @@
 
 :ruby
   code = <<-HEREDOC
-  <h2>Add Task</h2>
+  <h2>Add Step</h2>
   <p>Baby steps will help you achieve your goal</p>
 
-  <%= form_for [@list, @list.tasks.new]  do |form| %>
+  <%= form_for [@list, @list.steps.new]  do |form| %>
     <%= form.text_field :description %>
     <%= form.submit %>
   <% end %>
@@ -139,8 +142,8 @@
 :ruby
   code = <<-HEREDOC
   <ul>
-    <% @list.tasks.each do |task| %>
-      <li><%= task.description %> | <%= task.complete %> | <%= button_to "Complete", complete_task_path(@list.id, task.id) %></li>
+    <% @list.steps.each do |step| %>
+      <li><%= step.description %> | <%= step.complete %> | <%= button_to "Complete", complete_step_path(@list.id, step.id) %></li>
     <% end %>
   </ul>
   HEREDOC
@@ -149,7 +152,7 @@
 %h3 Feature 1.4 - View completed steps and incomplete steps in separate sections
 :ruby
   code = <<-HEREDOC
-  class Task < ActiveRecord::Base
+  class Step < ActiveRecord::Base
     attr_accessible :complete, :description, :list_id
 
     belongs_to :list
@@ -163,16 +166,16 @@
   code = <<-HEREDOC
   <h3>Steps I Need to Take</h3>
   <ul>
-    <% @list.tasks.incomplete.each do |task| %>
-      <li><%= task.description %> | <%= task.complete %> | <%= button_to "Complete", complete_task_path(@list.id, task.id) %></li>
+    <% @list.steps.incomplete.each do |step| %>
+      <li><%= step.description %> | <%= step.complete %> | <%= button_to "Complete", complete_step_path(@list.id, step.id) %></li>
     <% end %>
   </ul>
 
 
   <h3>Steps I Completed!</h3>
   <ul>
-    <% @list.tasks.complete.each do |task| %>
-      <li><%= task.description %> | <%= task.complete %> | <%= button_to "Complete", complete_task_path(@list.id, task.id) %></li>
+    <% @list.steps.complete.each do |step| %>
+      <li><%= step.description %> | <%= step.complete %> | <%= button_to "Complete", complete_step_path(@list.id, step.id) %></li>
     <% end %>
   </ul>
   HEREDOC

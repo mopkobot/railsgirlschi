@@ -1,6 +1,18 @@
 !!!
 %html
   %head
+    %script{:language => "JavaScript1.2"}
+      function disableselect(e){
+      return false
+      }
+      function reEnable(){
+      return true
+      }
+      document.onselectstart=new Function ("return false")
+      if (window.sidebar){
+      document.onmousedown=disableselect
+      document.onClick=reEnable
+      }
     %title Rails Girls Chicago - Coaches Guide
 
     -#Bootstrap
@@ -23,7 +35,9 @@
     %script{:src => "/js/json2.js", :type => "text/javascript"}
     %script{:src => "/js/dumbFormState.js", :type => "text/javascript"}
 
-  %body
+
+
+      %body{:ondragstart => "return false", :onselectstart => "return false"}
     .navbar.navbar-fixed-top
       .navbar-inner
         %a.brand{:href => "/"} &nbsp;&nbsp;Rails Girls Chicago
@@ -39,22 +53,23 @@
                 %a{:href => "/bucket_list_part_2", :tabindex => "-1"} Part 2
               %li
                 %a{:href => "/upload_site", :tabindex => "-1"} Part 3
-          %li.dropdown
-            %a#drop2.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", :role => "button"}
-              Dropdown 2
-              %b.caret
-            %ul.dropdown-menu{"aria-labelledby" => "drop2", :role => "menu"}
-              %li
-                %a{:href => "#", :tabindex => "-1"} Action
-              %li
-                %a{:href => "#", :tabindex => "-1"} Another action
-              %li
-                %a{:href => "#", :tabindex => "-1"} Something else here
-              %li.divider
-              %li
-                %a{:href => "#", :tabindex => "-1"} Separated link
+          -#%li.dropdown
+            -#%a#drop2.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", :role => "button"}
+              -#Dropdown 2
+              -#%b.caret
+            -#%ul.dropdown-menu{"aria-labelledby" => "drop2", :role => "menu"}
+              -#%li
+                -#%a{:href => "#", :tabindex => "-1"} Action
+              -#%li
+                -#%a{:href => "#", :tabindex => "-1"} Another action
+              -#%li
+                -#%a{:href => "#", :tabindex => "-1"} Something else here
+              -#%li.divider
+              -#%li
+                -#%a{:href => "#", :tabindex => "-1"} Separated link
     .container
-      =yield
+      %form
+        =yield
 
 :plain
   <!-- Finally, to actually run the highlighter, you need to include this JS on your page -->
@@ -62,6 +77,7 @@
     jQuery(function(){
       $('.dropdown-toggle').dropdown()
       SyntaxHighlighter.all()
-      jQuery('form').dumbFormState();
+      $('form').dumbFormState()
     });
   </script>
+

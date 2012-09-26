@@ -1,12 +1,14 @@
-%h3 User should be able to...
+.page-header
+  %h2
+    Bucket List - Part 1
+    %small User should be able to...
 %h3 Feature 1.1 - View a list of their Bucket Lists
-
 :ruby
   code = <<-HEREDOC
   gem install rails
   rails new bucket_list --skip-test-unit
   cd bucket_list
-  rails generate resource Lists name:string reason:string
+  rails generate resource List name:string reason:string
   rake db:migrate
   rails server
   HEREDOC
@@ -26,11 +28,11 @@
 :ruby
   code = <<-HEREDOC
     BucketList::Application.routes.draw do
-      root :to => 'lists#index'
       resources :lists
+      root :to => 'lists#index'
     end
   HEREDOC
-= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [2,3])
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
 
 
 :ruby
@@ -90,7 +92,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, create the <strong>new</strong> and <strong>create</strong> actions in the controller.", code)
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code)
 
 :ruby
   code = <<-HEREDOC
