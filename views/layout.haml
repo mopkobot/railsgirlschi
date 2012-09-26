@@ -78,6 +78,7 @@
       $('.dropdown-toggle').dropdown()
       SyntaxHighlighter.all()
       $('form').dumbFormState()
+      $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
     });
   </script>
 
