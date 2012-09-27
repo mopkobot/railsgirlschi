@@ -149,16 +149,9 @@
 
 :ruby
   code = <<-HEREDOC
-  def show
-    @list = List.find(params[:id])
-  end
-  HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, to allow users to create steps from the website, start by creating a step object in the show action", code, [3])
-
-:ruby
-  code = <<-HEREDOC
   def create
     @list = List.find(params[:list_id])
+    @step = @list.steps.new(params[:step])
     if @step.save
       redirect_to list_url(@list)
     else
@@ -193,7 +186,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/steps_controller.rb</code>, create an action for marking steps as complete", code, [2,3,4,5,6,7,8])
+= tutorial_for("ruby","Open <code>app/controllers/steps_controller.rb</code>, create an action for marking steps as complete", code, [2,3,4,5,6,7,8])
 
 :ruby
   code = <<-HEREDOC

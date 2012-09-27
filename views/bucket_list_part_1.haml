@@ -51,8 +51,9 @@
   <h2>Bucket Lists</h2>
 
   <% @lists.each do |list| %>
-    <strong><%= list.name %></strong> -
+    <%= list.name %> -
     <%= list.reason %>
+    <br />
   <% end %>
   HEREDOC
 = tutorial_for("ruby","Create <code>app/views/lists/index.html.erb</code>: Create an index view", code)
@@ -112,7 +113,7 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("xml","Create <code>app/views/lists/new.html.erb</code>, create a form for users to create a new List", code)
+= tutorial_for("ruby","Create <code>app/views/lists/new.html.erb</code>, create a form for users to create a new List", code)
 
 %div.tut
   %span.label.label-success Action
@@ -137,7 +138,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Create <code>app/controllers/lists_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code)
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code)
 
 :ruby
   code = <<-HEREDOC
@@ -157,15 +158,16 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("xml","Create <code>app/views/lists/edit.html.erb</code>, write html/erb for a form to edit a List", code)
+= tutorial_for("ruby","Create <code>app/views/lists/edit.html.erb</code>, write html/erb for a form to edit a List", code)
 
 
 :ruby
   code = <<-HEREDOC
   <% @lists.each do |list| %>
-    <%= list.name %>
-    <%= list.reason %>
+    <%= list.name %> -
+    <%= list.reason %> |
     <%= link_to "Edit", edit_list_path(list) %>
+    <br />
   <% end %>
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a link to the Edit page for a List inside the @lists.each block", code, [4])
@@ -186,24 +188,25 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add an show action.", code, [2,3,4])
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add a show action.", code, [2,3,4])
 
 :ruby
   code = <<-HEREDOC
   <h2><%= @list.name %></h2>
   <p><%= @list.reason %></p>
   HEREDOC
-= tutorial_for("xml","Create <code>app/views/lists/show.html.erb</code>, write html/erb code to show List information.", code)
+= tutorial_for("ruby","Create <code>app/views/lists/show.html.erb</code>, write html/erb code to show List information.", code)
 
 :ruby
   code = <<-HEREDOC
   <% @lists.each do |list| %>
-    <%= link_to list.name, list_path(list) %>
-    <%= list.reason %>
+    <%= link_to list.name, list_path(list) %> -
+    <%= list.reason %> |
     <%= link_to "Edit", edit_list_path(list) %>
+    <br />
   <% end %>
   HEREDOC
-= tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, change each List name into a link to its show page.", code, [2])
+= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, change each List name into a link to its show page.", code, [2])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Bucket List.  You should be able to see a page of just that Bucket List.")
 
@@ -224,19 +227,20 @@
 :ruby
   code = <<-HEREDOC
   <% @lists.each do |list| %>
-    <%= link_to list.name, list_path(list) %><br />
-    <%= list.reason %><br />
-    <%= link_to "Edit", edit_list_path(list) %><br />
-    <%= link_to 'Destroy', list, method: :delete, data: { confirm: 'Are you sure?' } %><br />
+    <%= link_to list.name, list_path(list) %> -
+    <%= list.reason %> |
+    <%= link_to "Edit", edit_list_path(list) %> |
+    <%= link_to 'Destroy', list, method: :delete, data: { confirm: 'Are you sure?' } %>
+    <br />
   <% end %>
   HEREDOC
-= tutorial_for("xml","Open <code>app/views/lists/index.html.erb</code>, add a link to the Destroy action for each list", code, [5])
+= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a link to the Destroy action for each list", code, [5])
 
 
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:
   %ul
-    %ol Add Flash messages for actions, such as un/successfully adding, updating, deleting lists, etc (<a href="http://guides.rubyonrails.org/action_controller_overview.html#the-flash" target="new">Flash Messages</a>).
-    %ol Add model validations to List (<a href="http://guides.rubyonrails.org/active_record_validations_callbacks.html#validation-helpers" target="new">Validation Helpers</a>).
+    %ol Add Flash messages for actions, such as un/successfully adding, updating, deleting, etc (<a href="http://guides.rubyonrails.org/action_controller_overview.html#the-flash" target="new">Flash Messages</a>).
+    %ol Add model validations (<a href="http://guides.rubyonrails.org/active_record_validations_callbacks.html#validation-helpers" target="new">Validation Helpers</a>).
     %ol Extract the forms into a partial (<a href="http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials" target="new">Using Partials</a>)
