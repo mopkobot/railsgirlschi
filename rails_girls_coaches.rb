@@ -24,9 +24,11 @@ class RailsGirlsCoaches < Sinatra::Base
     def action_for(action, desc)
       html = <<-HEREDOC
       <div class="tut">
+        <label>
         <input type="checkbox" name="tut" value="#{desc.to_slug}"><span class="label label-success">Action</span>
 
         #{action}
+        </label>
         <div class="well">#{desc}</div>
       </div>
       HEREDOC
