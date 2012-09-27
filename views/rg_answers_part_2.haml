@@ -53,7 +53,7 @@
 
 :ruby
   code = <<-HEREDOC
-  rails generate resource answer description:string votes:integer list_id:integer
+  rails generate resource answer description:string votes:integer question_id:integer
   HEREDOC
 = tutorial_for("plain","Create a Answers resource", code)
 
@@ -95,7 +95,7 @@
   code = <<-HEREDOC
   rails console
   question = Question.first
-  answer = list.answers.new
+  answer = question.answers.new
   answer.description = "write a answer here"
   answer.save
   exit
@@ -122,8 +122,9 @@
   code = <<-HEREDOC
   def create
     @question = Question.find(params[:question_id])
+    @answer = @question.answers.new(params[:answer])
     if @answer.save
-      redirect_to list_url(@question)
+      redirect_to question_url(@question)
     else
       redirect_to question_url(@question)
     end
