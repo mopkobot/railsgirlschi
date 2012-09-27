@@ -6,7 +6,6 @@
 %h3 Feature 1.1 - View a list of their Bucket Lists
 :ruby
   code = <<-HEREDOC
-  gem install rails
   rails new bucket_list --skip-test-unit
   cd bucket_list
   rails generate resource List name:string reason:string
@@ -25,6 +24,7 @@
   %span.label.label-success Action
   Delete the file <code>public/index.html</code> and re-visit <code>http://localhost:3000</code>
   .well Now what do you see?
+.alert.alert-success Coaches, explain why removing public created an error and how we are going to solve this by modifying rails routes.
 
 :ruby
   code = <<-HEREDOC
@@ -51,14 +51,14 @@
   <h2>Bucket Lists</h2>
 
   <% @lists.each do |list| %>
-    <%= list.name %>
+    <strong><%= list.name %></strong> -
     <%= list.reason %>
   <% end %>
   HEREDOC
-= tutorial_for("xml","Create <code>app/views/lists/index.html.erb</code>: Create an index view", code)
+= tutorial_for("ruby","Create <code>app/views/lists/index.html.erb</code>: Create an index view", code)
 
-.well
-  Try visiting the page again.  It should be blank because we haven't created any Lists yet.
+= action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
+= action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'Bucket Lists' but no lists because haven't created any yet.")
 
 :ruby
   code = <<-HEREDOC

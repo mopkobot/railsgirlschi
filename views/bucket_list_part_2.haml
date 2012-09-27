@@ -220,7 +220,7 @@
     <% @list.steps.each do |step| %>
       <li>
         <%= step.description %> | <%= step.complete %>
-        <%= button_to "Complete", complete_list_step(@list.id, step.id) %>
+        <%= button_to "Complete", complete_list_step_path(@list.id, step.id) %>
       </li>
     <% end %>
   </ul>
@@ -247,7 +247,7 @@
     <% @list.steps.incomplete.each do |step| %>
       <li>
         <%= step.description %> | <%= step.complete %>
-        <%= button_to "Complete", complete_step_path(@list.id, step.id) %>
+        <%= button_to "Complete", complete_list_step_path(@list.id, step.id) %>
       </li>
     <% end %>
   </ul>
