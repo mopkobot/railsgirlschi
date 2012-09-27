@@ -1,0 +1,244 @@
+.alert.alert-error Work in Progress!  We haven't tested this out yet, at all.  It was just copy/pasted/search/replaced from Bucket List.  Feel free to fill in the blanks if you wish :)
+
+.page-header
+  %h2
+    RG! Answers - Part 1
+  %p RG Answers (Rails Girls Answers) is the newest competitor to Yahoo! Answers.  It allows users to pose a question.  Under each question, users can give answers and vote on the best ones.
+%h3 User should be able to...
+%h3 Feature 1.1 - View a list of Questions
+:ruby
+  code = <<-HEREDOC
+  rails new rg_answers --skip-test-unit
+  cd rg_answers
+  rails generate resource Question name:string reason:string
+  rake db:migrate
+  rails server
+  HEREDOC
+= tutorial_for("plain", "Create a new Rails Project", code)
+.alert.alert-success Coaches, give quick explaination about what each command does.
+
+%div.tut
+  %span.label.label-success Action
+  Visit in your browser <code>http://localhost:3000</code>
+  .well This is the default Rails landing page.  Let's try removing it and see what happens...
+
+%div.tut
+  %span.label.label-success Action
+  Delete the file <code>public/index.html</code> and re-visit <code>http://localhost:3000</code>
+  .well Now what do you see?
+.alert.alert-success Coaches, explain why removing public created an error and how we are going to solve this by modifying rails routes.
+
+:ruby
+  code = <<-HEREDOC
+    RgAnswers::Application.routes.draw do
+      resources :questions
+      root :to => 'questions#index'
+    end
+  HEREDOC
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
+
+
+:ruby
+  code = <<-HEREDOC
+    class QuestionsController < ApplicationController
+      def index
+       @questions = Question.all
+      end
+    end
+    HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>: Create an index action in the QuestionsController", code, [2, 3, 4])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>RG! Questions</h2>
+
+  <% @questions.each do |question| %>
+    <strong><%= question.name %></strong> -
+    <%= question.reason %>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/questions/index.html.erb</code>: Create an index view", code)
+
+= action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
+= action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'RG! Questions' but no questions because haven't created any yet.")
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  question = Question.new
+  question.name = "What's the object-oriented way of becoming wealthy?"
+  question.reason = "Hi all, I need some ideas for earning money. Got any tips anyone?"
+  question.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Create some Questions", code)
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000</code>
+  .well You should now see your newly created Question.  If you don't, please ask your coach for some help.
+
+%h3 Feature 1.2 - Create Questions using a form on the site
+
+:ruby
+  code = <<-HEREDOC
+  def new
+    @question = Question.new
+  end
+
+  def create
+    @question = Question.new(params[:question])
+    if @question.save
+      redirect_to questions_url
+    else
+      render action: "new"
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Ask a Question</h2>
+  <%= form_for @question do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :reason %><br />
+      <%= form.text_field :reason %>
+    </div>
+
+    <p><%= form.submit %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/questions/new.html.erb</code>, create a form for users to create a new Question", code)
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000/questions/new</code>
+  .well This is the new form you just created!  Try creating a few Questions from this web form.
+
+%h3 Feature 1.3 - Edit Questions from a form
+
+:ruby
+  code = <<-HEREDOC
+  def edit
+    @question = Question.find(params[:id])
+  end
+
+  def update
+    @question = Question.find(params[:id])
+
+    if @question.update_attributes(params[:question])
+      redirect_to questions_path
+    else
+      render action: "edit"
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/controllers/questions_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Edit <%= @question.name %></h2>
+
+  <%= form_for @question do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :reason %><br />
+      <%= form.text_field :reason %>
+    </div>
+
+    <p><%= form.submit %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/questions/edit.html.erb</code>, write html/erb for a form to edit a Question", code)
+
+
+:ruby
+  code = <<-HEREDOC
+  <% @questions.each do |question| %>
+    <%= question.name %>
+    <%= question.reason %>
+    <%= link_to "Edit", edit_question_path(question) %>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Edit page for a Question inside the @questions.each block", code, [4])
+
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000</code>
+  .well Click on the Edit link for a Question.  You should be able to update your question.  If you can't, please ask your coach for some help.
+
+%h3 Feature 1.4 - View each Question separately on its own page
+
+:ruby
+  code = <<-HEREDOC
+  class QuestionsController < ApplicationController
+    def show
+      @question = Question.find(params[:id])
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a show action.", code, [2,3,4])
+
+:ruby
+  code = <<-HEREDOC
+  <h2><%= @question.name %></h2>
+  <p><%= @question.reason %></p>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/questions/show.html.erb</code>, write html/erb code to show Question information.", code)
+
+:ruby
+  code = <<-HEREDOC
+  <% @questions.each do |question| %>
+    <%= link_to question.name, question_path(question) %>
+    <%= question.reason %>
+    <%= link_to "Edit", edit_question_path(question) %>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, change each Question name into a link to its show page.", code, [2])
+
+= action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Question.  You should be able to see a page of just that Question.")
+
+%h3 Feature 1.5 - Delete Questions
+
+:ruby
+  code = <<-HEREDOC
+  class QuestionsController < ApplicationController
+    def destroy
+      @question = Question.find(params[:id])
+      @question.destroy
+      redirect_to questions_url
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a destroy action.", code, [2,3,4, 5, 6])
+
+:ruby
+  code = <<-HEREDOC
+  <% @questions.each do |question| %>
+    <%= link_to question.name, question_path(question) %><br />
+    <%= question.reason %><br />
+    <%= link_to "Edit", edit_question_path(question) %><br />
+    <%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %><br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Destroy action for each question", code, [5])
+
+
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %ol Add Flash messages for actions, such as un/successfully adding, updating, deleting, etc (<a href="http://guides.rubyonrails.org/action_controller_overview.html#the-flash" target="new">Flash Messages</a>).
+    %ol Add model validations (<a href="http://guides.rubyonrails.org/active_record_validations_callbacks.html#validation-helpers" target="new">Validation Helpers</a>).
+    %ol Extract the forms into a partial (<a href="http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials" target="new">Using Partials</a>)

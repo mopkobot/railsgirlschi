@@ -1,0 +1,220 @@
+.alert.alert-error Work in Progress!  Lots of pending code to write.  We haven't tested this out yet, at all.  It was just copy/pasted/search/replaced from Bucket List. Feel free to fill in the blanks if you wish :)
+.page-header
+  %h2
+    RG! Answers - Part 2
+  %p RG Answers (Rails Girls Answers) is the newest competitor to Yahoo! Answers.  It allows users to pose a question.  Under each question, users can give answers and vote on the best ones.
+
+%h3 User should be able to...
+%h3 Feature 2.1 - See a pretty site!
+%p Let's dress up the app a little with some styling.
+%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
+%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
+
+:ruby
+  code = <<-HEREDOC
+  group :assets do
+    gem 'twitter-bootstrap-rails'
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+
+:ruby
+  code = <<-HEREDOC
+  bundle install
+  rails generate bootstrap:install
+  HEREDOC
+= tutorial_for("plain","Install the newly added gem", code)
+
+= action_for("Restart the Server and <code>http://localhost:3000</code>", "After restarting the server, you should now notice the look of the webpage changed slightly.")
+
+:ruby
+  code = <<-HEREDOC
+  <div class="container">
+    <%= yield %>
+  </div>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [1, 3])
+
+:ruby
+  code = <<-HEREDOC
+  <div class="hero-unit">
+    <h1>RG! Answers</h1>
+    <p>Got a question?  Get the best answers!</p>
+    <p><%= link_to "Ask a Question", new_question_url, :class => "brn btn-primary btn-large" %></p>
+  </div>
+
+  TBD
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a hero-unit and a table around existing code.", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!  Checkout the Twitter Bootstrap documentation and continue dressing up your webapp.")
+
+%h3 Feature 2.2 - Add "answers" to each Question
+
+:ruby
+  code = <<-HEREDOC
+  rails generate resource answer description:string votes:integer list_id:integer
+  HEREDOC
+= tutorial_for("plain","Create a Answers resource", code)
+
+:ruby
+  code = <<-HEREDOC
+  rake db:migrate
+  HEREDOC
+= tutorial_for("plain","Migrate the database", code)
+
+:ruby
+  code = <<-HEREDOC
+  resources :questions do
+    resources :answers
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the answers route under questions", code)
+
+:ruby
+  code = <<-HEREDOC
+  class Question < ActiveRecord::Base
+    attr_accessible :name, :reason
+
+    has_many :answers
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/question.rb</code>, add an association to the answers", code, [4])
+
+:ruby
+  code = <<-HEREDOC
+  class Answer < ActiveRecord::Base
+    attr_accessible :votes, :description, :question_id
+
+    belongs_to :question
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/answer.rb</code>, add the corresponding association", code, [4])
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  question = Question.first
+  answer = list.answers.new
+  answer.description = "write a answer here"
+  answer.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Try adding some answers in rails console", code)
+
+:ruby
+  code = <<-HEREDOC
+  <ul>
+  <% @question.answers.each do |answer| %>
+    <li>
+      <%= answer.description %> | <%= answer.vote %>
+    </li>
+  <% end %>
+  </ul>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add code to display the answers for each question", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "See the answers underneath each question")
+
+%h3 Feature 2.3 - Add "answers" from the website
+
+:ruby
+  code = <<-HEREDOC
+  def create
+    @question = Question.find(params[:question_id])
+    if @answer.save
+      redirect_to list_url(@question)
+    else
+      redirect_to question_url(@question)
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/answers_controller.rb</code>, create a create action", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Add Answer</h2>
+  <p>Baby steps will help you achieve your goal</p>
+
+  <%= form_for [@question, @question.answers.new]  do |form| %>
+    <%= form.text_field :description %>
+    <%= form.submit %>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add in code to display the web form to create answers", code)
+
+%h3 Feature 2.4 - Vote up for down answers
+:ruby
+  code = <<-HEREDOC
+  class AnswersController < ApplicationController
+    def vote
+      # pending code
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/answers_controller.rb</code>, create an action for voting for answers", code)
+
+:ruby
+  code = <<-HEREDOC
+  resources :questions do
+    resources :answers do
+      member do
+        post :vote
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for vote action", code, [2, 3, 4, 5, 6])
+
+:ruby
+  code = <<-HEREDOC
+  rake routes
+  HEREDOC
+= tutorial_for("plain", "See which new route it created", code)
+.alert.alert-success Coaches, give a quick overview of the rake routes output
+
+:ruby
+  code = <<-HEREDOC
+  <ul>
+    <% @question.answers.each do |answer| %>
+      <li>
+        <%= answer.description %> | <%= answer.vote %>
+        #pending <%= button_to "Vote", vote_question_answer_path(@question.id, answer.id) %>
+      </li>
+    <% end %>
+  </ul>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add a vote button that goes to the vote route", code, [5])
+
+%h3 Feature 2.5 - View answers ordered by votes
+:ruby
+  code = <<-HEREDOC
+  class Answer < ActiveRecord::Base
+    attr_accessible :vote, :description, :question_id
+
+    belongs_to :question
+    #pending scope :by_votes
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/step.rb</code>, add a named scope for sorting answers by votes", code)
+
+:ruby
+  code = <<-HEREDOC
+  #pending
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, using the named scopes, display answers sorted by most votes first", code)
+
+:ruby
+  code = <<-HEREDOC
+  #pending
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, show the top answer underneath each question", code)
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %ol Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
+    %ol Extract duplicated logic in Answers controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
+    %ol Order the answers by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
+    %ol Also, try the suggestions at the end of Part 1 (<a href="/rg_question_part_1" target="new">RG! Answers Part 1</a>).
+

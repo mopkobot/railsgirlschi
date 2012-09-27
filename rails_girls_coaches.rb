@@ -16,6 +16,14 @@ class RailsGirlsCoaches < Sinatra::Base
     haml :bucket_list_part_2
   end
 
+  get '/rg_answers_part_1' do
+    haml :rg_answers_part_1
+  end
+
+  get '/rg_answers_part_2' do
+    haml :rg_answers_part_2
+  end
+
   get '/upload_site' do
     haml :upload_site
   end
