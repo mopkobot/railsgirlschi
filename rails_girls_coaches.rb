@@ -43,8 +43,10 @@ class RailsGirlsCoaches < Sinatra::Base
 
 html = <<-END
 <div class="tut">
+<label>
 <input type="checkbox" name="tut" value="#{desc.to_slug}"><span class="label label-#{label}">#{application}</span>
 #{desc}
+</label>
 <script type="syntaxhighlighter" class="brush: #{brush_type}; highlight: #{highlight}"><![CDATA[
 #{commands}
 ]]></script>
