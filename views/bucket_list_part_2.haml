@@ -137,7 +137,9 @@
   code = <<-HEREDOC
   <ul>
   <% @list.steps.each do |step| %>
-    <li><%= step.description %> | <%= step.complete %></li>
+    <li>
+      <%= step.description %> | <%= step.complete %>
+    </li>
   <% end %>
   </ul>
   HEREDOC
@@ -195,19 +197,35 @@
 
 :ruby
   code = <<-HEREDOC
-  match 'lists/:list_id/steps/:id/complete' => 'steps#complete', :as => :step_complete
+  resources :lists do
+    resources :steps do
+      member do
+        post :complete
+      end
+    end
+  end
   HEREDOC
-= tutorial_for("ruby","Open <code>config/routes.rb</code>, create a custom route to the completed action", code)
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for complete action", code, [2, 3, 4, 5, 6])
+
+:ruby
+  code = <<-HEREDOC
+  rake routes
+  HEREDOC
+= tutorial_for("plain", "See which new route it created", code)
+.alert.alert-success Coaches, give a quick overview of the rake routes output
 
 :ruby
   code = <<-HEREDOC
   <ul>
     <% @list.steps.each do |step| %>
-      <li><%= step.description %> | <%= step.complete %> | <%= button_to "Complete", complete_step_path(@list.id, step.id) %></li>
+      <li>
+        <%= step.description %> | <%= step.complete %>
+        <%= button_to "Complete", complete_list_step(@list.id, step.id) %>
+      </li>
     <% end %>
   </ul>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add a complete button that goes to the custom route", code, [3])
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add a complete button that goes to the complete route", code, [5])
 
 %h3 Feature 2.5 - View completed steps and incomplete steps in separate sections
 :ruby
@@ -227,7 +245,10 @@
   <h3>Steps I Need to Take</h3>
   <ul>
     <% @list.steps.incomplete.each do |step| %>
-      <li><%= step.description %> | <%= step.complete %> | <%= button_to "Complete", complete_step_path(@list.id, step.id) %></li>
+      <li>
+        <%= step.description %> | <%= step.complete %>
+        <%= button_to "Complete", complete_step_path(@list.id, step.id) %>
+      </li>
     <% end %>
   </ul>
 
@@ -235,7 +256,7 @@
   <h3>Steps I Completed!</h3>
   <ul>
     <% @list.steps.complete.each do |step| %>
-      <li><%= step.description %> | <%= step.complete %> | <%= button_to "Complete", complete_step_path(@list.id, step.id) %></li>
+      <li><%= step.description %>
     <% end %>
   </ul>
   HEREDOC
