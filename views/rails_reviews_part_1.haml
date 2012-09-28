@@ -1,0 +1,247 @@
+.page-header
+  %h2
+    Rails Reviews - Part 1
+  %p Rails Reviews is an application that allows users to review their favorite restaurants.
+%h3 User should be able to...
+%h3 Feature 1.1 - View a list of their Restaurants
+:ruby
+  code = <<-HEREDOC
+  rails new rails_reviews --skip-test-unit
+  cd rails_reviews
+  rails generate resource Restaurant name:string phone:string
+  rake db:migrate
+  rails server
+  HEREDOC
+= tutorial_for("plain", "Create a new Rails Project", code)
+.alert.alert-success Coaches, give quick explanation about what each command does.
+
+%div.tut
+  %span.label.label-success Action
+  Visit in your browser <code>http://localhost:3000</code>
+  .well This is the default Rails landing page.  Let's try removing it and see what happens...
+
+%div.tut
+  %span.label.label-success Action
+  Delete the file <code>public/index.html</code> and re-visit <code>http://localhost:3000</code>
+  .well Now what do you see?
+.alert.alert-success Coaches, explain why removing public created an error and how we are going to solve this by modifying rails routes.
+
+:ruby
+  code = <<-HEREDOC
+    RailsReviews::Application.routes.draw do
+      resources :restaurants
+      root :to => 'lists#index'
+    end
+  HEREDOC
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
+
+
+:ruby
+  code = <<-HEREDOC
+    class RestaurantsController < ApplicationController
+      def index
+       @restaurants = Restaurant.all
+      end
+    end
+    HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>: Create an index action in the RestaurantsController", code, [2, 3, 4])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Restaurants</h2>
+
+  <% @restaurants.each do |restaurant| %>
+    <%= restaurant.name %> -
+    <%= restaurant.phone %>
+    <br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/restaurants/index.html.erb</code>: Create an index view", code)
+
+= action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
+= action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'Restaurants' but no lists because haven't created any yet.")
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  restaurant = Restaurant.new
+  restaurant.name = "Ruby Deli"
+  restaurant.phone = "3128573467"
+  restaurant.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Create some Restaurants", code)
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000</code>
+  .well You should now see your newly created Restaurant.  If you don't, please ask your coach for some help.
+
+%h3 Feature 1.2 - Create Restaurants using a form on the site
+
+:ruby
+  code = <<-HEREDOC
+  class RestaurantsController < ApplicationController
+    def new
+      @restaurant = Restaurant.new
+    end
+
+    def create
+      @restaurant = Restaurant.new(params[:restaurant])
+      if @restaurant.save
+        redirect_to restaurants_url
+      else
+        render action: "new"
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*2..13])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Create New Restaurant</h2>
+  <%= form_for @restaurant do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :phone %><br />
+      <%= form.text_field :phone %>
+    </div>
+
+    <p><%= form.submit %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/restaurants/new.html.erb</code>, create a form for users to create a new Restaurant", code)
+
+= action_for("Visit <code>http://localhost:3000/restaurants/new</code>", "This is the new form you just created!  Try creating a few Restaurants from this web form.")
+
+%h3 Feature 1.3 - Edit Restaurants from a form
+
+:ruby
+  code = <<-HEREDOC
+  class RestaurantsController < ApplicationController
+    def edit
+      @restaurant = Restaurant.find(params[:id])
+    end
+
+    def update
+      @restaurant = Restaurant.find(params[:id])
+
+      if @restaurant.update_attributes(params[:restaurant])
+        redirect_to restaurants_path
+      else
+        render action: "edit"
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*2..14])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Edit <%= @restaurant.name %></h2>
+
+  <%= form_for @restaurant do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :phone %><br />
+      <%= form.text_field :phone %>
+    </div>
+
+    <p><%= form.submit %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/restaurants/edit.html.erb</code>, write html/erb for a form to edit a List", code)
+
+
+:ruby
+  code = <<-HEREDOC
+  <% @restaurants.each do |restaurant| %>
+    <%= restaurant.name %> -
+    <%= restaurant.phone %> |
+    <%= link_to "Edit", edit_restaurant_path(restaurant) %>
+    <br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Edit page for a Restaurant inside the @restaurants.each block", code, [4])
+
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000</code>
+  .well Click on the Edit link for a Restaurant.  You should be able to update your restaurant.  If you can't, please ask your coach for some help.
+
+%h3 Feature 1.4 - View each Restaurant separately on its own page
+
+:ruby
+  code = <<-HEREDOC
+  class RestaurantsController < ApplicationController
+    def show
+      @restaurant = Restaurant.find(params[:id])
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add a show action.", code, [2,3,4])
+
+:ruby
+  code = <<-HEREDOC
+  <h2><%= @restaurant.name %></h2>
+  <p><%= @restaurant.phone %></p>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/restaurants/show.html.erb</code>, write html/erb code to show Restaurant information.", code)
+
+:ruby
+  code = <<-HEREDOC
+  <% @restaurants.each do |restaurant| %>
+    <%= link_to restaurant.name, restaurant_path(restaurant) %> -
+    <%= restaurant.phone %> |
+    <%= link_to "Edit", edit_restaurant_path(restaurant) %>
+    <br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, change each Restaurant name into a link to its show page.", code, [2])
+
+= action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Restaurant.  You should be able to see a page of just that Restaurant.")
+
+%h3 Feature 1.5 - Delete Restaurant
+
+:ruby
+  code = <<-HEREDOC
+  class RestaurantsController < ApplicationController
+    def destroy
+      @restaurant = Restaurant.find(params[:id])
+      @restaurant.destroy
+      redirect_to restaurants_url
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add a destroy action.", code, [2,3,4, 5, 6])
+
+:ruby
+  code = <<-HEREDOC
+  <% @restaurants.each do |restaurant| %>
+    <%= link_to restaurant.name, restaurant_path(restaurant) %> -
+    <%= restaurant.phone %> |
+    <%= link_to "Edit", edit_restaurant_path(restaurant) %> |
+    <%= link_to 'Destroy', restaurant, method: :delete, data: { confirm: 'Are you sure?' } %>
+    <br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Destroy action for each restaurant", code, [5])
+
+
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %ol Add Flash messages for actions, such as un/successfully adding, updating, deleting, etc (<a href="http://guides.rubyonrails.org/action_controller_overview.html#the-flash" target="new">Flash Messages</a>).
+    %ol Add model validations (<a href="http://guides.rubyonrails.org/active_record_validations_callbacks.html#validation-helpers" target="new">Validation Helpers</a>).
+    %ol Extract the forms into a partial (<a href="http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials" target="new">Using Partials</a>)

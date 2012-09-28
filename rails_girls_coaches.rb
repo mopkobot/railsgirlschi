@@ -32,6 +32,14 @@ class RailsGirlsCoaches < Sinatra::Base
     haml :event_tracker_part_2
   end
 
+  get '/rails_reviews_part_1' do
+    haml :rails_reviews_part_1
+  end
+
+  get '/rails_reviews_part_2' do
+    haml :rails_reviews_part_2
+  end
+
   get '/upload_site' do
     haml :upload_site
   end
