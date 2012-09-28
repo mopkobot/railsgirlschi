@@ -1,5 +1,5 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
-require 'sinatra/base';
+require 'sinatra/base'
 require 'haml'
 require 'to_slug.rb'
 
@@ -38,6 +38,10 @@ class RailsGirlsCoaches < Sinatra::Base
 
   get '/rails_reviews_part_2' do
     haml :rails_reviews_part_2
+  end
+
+  get '/short_url_part_1' do
+    haml :short_url_part_1
   end
 
   get '/upload_site' do
