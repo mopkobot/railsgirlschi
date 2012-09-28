@@ -30,7 +30,7 @@
   code = <<-HEREDOC
     RailsReviews::Application.routes.draw do
       resources :restaurants
-      root :to => 'lists#index'
+      root :to => 'restaurants#index'
     end
   HEREDOC
 = tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
@@ -59,7 +59,7 @@
 = tutorial_for("ruby","Create <code>app/views/restaurants/index.html.erb</code>: Create an index view", code)
 
 = action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
-= action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'Restaurants' but no lists because haven't created any yet.")
+= action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'Restaurants' but no restaurants because you haven't created any yet.")
 
 :ruby
   code = <<-HEREDOC
@@ -159,7 +159,7 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/restaurants/edit.html.erb</code>, write html/erb for a form to edit a List", code)
+= tutorial_for("ruby","Create <code>app/views/restaurants/edit.html.erb</code>, write html/erb for a form to edit a Restaurant", code)
 
 
 :ruby
@@ -171,7 +171,7 @@
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Edit page for a Restaurant inside the @restaurants.each block", code, [4])
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Edit page for a Restaurant inside the @restaurants.each block", code, [3,4])
 
 
 %div.tut
@@ -235,7 +235,7 @@
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Destroy action for each restaurant", code, [5])
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Destroy action for each restaurant", code, [4,5])
 
 
 
