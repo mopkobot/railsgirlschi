@@ -1,4 +1,3 @@
-.alert.alert-error Work in Progress!  Lots of pending code to write.  We haven't tested this out yet, at all.  It was just copy/pasted/search/replaced from Bucket List. Feel free to fill in the blanks if you wish :)
 .page-header
   %h2
     RG! Answers - Part 2
@@ -53,9 +52,25 @@
 
 :ruby
   code = <<-HEREDOC
-  rails generate resource answer description:string votes:integer question_id:integer
+  rails generate resource Answer description:string votes:integer question_id:integer
   HEREDOC
 = tutorial_for("plain","Create a Answers resource", code)
+
+:ruby
+  code = <<-HEREDOC
+  class CreateAnswers < ActiveRecord::Migration
+    def change
+      create_table :answers do |t|
+        t.string :description
+        t.integer :votes, :default => 0
+        t.integer :question_id
+
+        t.timestamps
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>db/migrate/20120929XXXXXX_create_answers.rb</code>, default votes to zero", code, [5])
 
 :ruby
   code = <<-HEREDOC
@@ -65,8 +80,12 @@
 
 :ruby
   code = <<-HEREDOC
-  resources :questions do
-    resources :answers
+  RgAnswers::Application.routes.draw do
+    resources :questions do
+      resources :answers
+    end
+
+    root :to => 'questions#index'
   end
   HEREDOC
 = tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the answers route under questions", code)
@@ -104,15 +123,13 @@
 
 :ruby
   code = <<-HEREDOC
-  <ul>
   <% @question.answers.each do |answer| %>
-    <li>
-      <%= answer.description %> | <%= answer.vote %>
-    </li>
+    <strong>This answer has <%= answer.votes %> votes.</strong>
+    <p><%= answer.description %></p>
+    <hr>
   <% end %>
-  </ul>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add code to display the answers for each question", code)
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add code to display the answers for each question at the bottom", code)
 
 = action_for("Visit <code>http://localhost:3000</code>", "See the answers underneath each question")
 
@@ -120,13 +137,15 @@
 
 :ruby
   code = <<-HEREDOC
-  def create
-    @question = Question.find(params[:question_id])
-    @answer = @question.answers.new(params[:answer])
-    if @answer.save
-      redirect_to question_url(@question)
-    else
-      redirect_to question_url(@question)
+  class AnswersController < ApplicationController
+    def create
+      @question = Question.find(params[:question_id])
+      @answer = @question.answers.new(params[:answer])
+      if @answer.save
+        redirect_to question_url(@question)
+      else
+        redirect_to question_url(@question)
+      end
     end
   end
   HEREDOC
@@ -135,21 +154,26 @@
 :ruby
   code = <<-HEREDOC
   <h2>Add Answer</h2>
-  <p>Baby steps will help you achieve your goal</p>
 
   <%= form_for [@question, @question.answers.new]  do |form| %>
     <%= form.text_field :description %>
     <%= form.submit %>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add in code to display the web form to create answers", code)
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add in code to display the web form to create answers at the bottom", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "Create some answers to your questions using the web form.")
 
 %h3 Feature 2.4 - Vote up for down answers
 :ruby
   code = <<-HEREDOC
   class AnswersController < ApplicationController
     def vote
-      # pending code
+      @question = Question.find(params[:question_id])
+      @answer = Answer.find(params[:id])
+      @answer.votes += 1
+      @answer.save
+      redirect_to question_url(@question)
     end
   end
   HEREDOC
@@ -176,40 +200,72 @@
 
 :ruby
   code = <<-HEREDOC
-  <ul>
-    <% @question.answers.each do |answer| %>
-      <li>
-        <%= answer.description %> | <%= answer.vote %>
-        #pending <%= button_to "Vote", vote_question_answer_path(@question.id, answer.id) %>
-      </li>
-    <% end %>
-  </ul>
+  <% @question.answers.by_votes.each do |answer| %>
+    <strong>This answer has <%= answer.votes %> votes.</strong><br />
+    Like this answer?  <%= button_to "Vote +1", vote_question_answer_path(@question.id, answer.id) %>
+    <p><%= answer.description %></p>
+    <hr>
+  <% end %>
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add a vote button that goes to the vote route", code, [5])
+
+= action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
+= action_for("Visit <code>http://localhost:3000</code>", "Visit a Question page.  Try voting on some answers and see the vote count go up.")
 
 %h3 Feature 2.5 - View answers ordered by votes
 :ruby
   code = <<-HEREDOC
   class Answer < ActiveRecord::Base
-    attr_accessible :vote, :description, :question_id
+    attr_accessible :votes, :description, :question_id
 
     belongs_to :question
-    #pending scope :by_votes
+
+    scope :by_votes, :order => "votes DESC"
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/step.rb</code>, add a named scope for sorting answers by votes", code)
+= tutorial_for("ruby","Open <code>app/models/answer.rb</code>, add a named scope for sorting answers by votes", code)
 
 :ruby
   code = <<-HEREDOC
-  #pending
+  <% @question.answers.by_votes.each do |answer| %>
+    <strong>This answer has <%= answer.votes %> votes.</strong><<br />
+    Like this answer?  <%= button_to "Vote +1", vote_question_answer_path(@question.id, answer.id) %>
+    <p><%= answer.description %></p>
+    <hr>
+  <% end %>
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, using the named scopes, display answers sorted by most votes first", code)
 
+= action_for("Visit <code>http://localhost:3000</code>", "Visit a Question page.  Try voting on some answers and see the vote count go up.")
+
+%h3 Feature 2.6 - View the top answer for each question on the index page
 :ruby
   code = <<-HEREDOC
-  #pending
+  def top_answer
+    top_answer = self.answers.by_votes.first
+    if top_answer.present?
+      top_answer.description
+    else
+      "Be the first to answer this question!"
+    end
+  end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, show the top answer underneath each question", code)
+= tutorial_for("ruby","Open <code>app/models/question.rb</code>, add a method to find the top answer", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h2>RG! Questions</h2>
+
+  <% @questions.each do |question| %>
+    <strong><%= link_to question.name, question_path(question) %></strong><br />
+    <%= question.reason %><br />
+    <%= link_to "Edit", edit_question_path(question) %>
+    <%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %><br />
+    <strong>Top Answer:</strong> <%= question.top_answer %>
+    <hr>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add code to display the top answer underneath each question", code)
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:
