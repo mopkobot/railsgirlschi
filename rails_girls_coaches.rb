@@ -28,6 +28,10 @@ class RailsGirlsCoaches < Sinatra::Base
     haml :upload_site
   end
 
+  get '/hello_world' do
+    haml :hello_world
+  end
+
   helpers do
     def action_for(action, desc)
       html = <<-HEREDOC

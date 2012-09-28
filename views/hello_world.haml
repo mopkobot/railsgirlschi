@@ -1,0 +1,82 @@
+.page-header
+  %h2
+    Hello World
+  %p A simple first Rails Application
+
+:ruby
+  code = <<-HEREDOC
+  rails new hello_world
+  cd hello_world
+  rails generate controller HelloWorld
+  HEREDOC
+= tutorial_for("plain", "Create a new Rails Project", code)
+
+:ruby
+  code = <<-HEREDOC
+    HelloWorld::Application.routes.draw do
+      match '/hello_world' => 'hello_world#index'
+    end
+  HEREDOC
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code)
+
+
+:ruby
+  code = <<-HEREDOC
+    class HelloWorldController < ApplicationController
+      def index
+        @title = "Testing"
+        @welcome_message = "Testing again"
+      end
+    end
+    HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/hello_world_controller.rb</code>: Create an index action", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h1>Hello World</h1>
+  <div>
+    <%= @title %>
+  </div>
+  <div>
+    <%= @welcome_message %>
+  </div>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/hello_world/index.html.erb</code>: Create an index view", code)
+
+:ruby
+  code = <<-HEREDOC
+  rails server
+  HEREDOC
+= tutorial_for("plain","Start the server", code)
+
+= action_for("Visit <code>http://localhost:3000/hello_world</code>", "You should see Hello World")
+
+:ruby
+  code = <<-HEREDOC
+    class HelloWorldController < ApplicationController
+      def index
+        @title = "Rails Girls"
+        @welcome_message = "This is my first app!"
+      end
+    end
+    HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/hello_world_controller.rb</code>: Modify the variable values", code)
+
+= action_for("Visit <code>http://localhost:3000/hello_world</code>", "You should your new title and message")
+
+%h3
+  Now it's your turn!
+%p
+  Now that you know how to create a page, try creating one by yourself.  If you get stuck, don't hesitate to ask a coach for help.
+:ruby
+  code = <<-HEREDOC
+  <ul>
+    <li>It should route to http://localhost:3000/about_me</li>
+    <li>When you visit the page, it should display your name and a short sentence about yourself.</li>
+    <li>Neither of these two pieces of information is allowed to be hard coded in the view.</li>
+  </ul>
+  HEREDOC
+= action_for("Your Turn!", "Now it's your turn to create a page! Create a page that meets the following requirements: #{code}")
+
+= action_for("Show a Coach", "Once you've completed all the requirements above, show a coach.")
+
