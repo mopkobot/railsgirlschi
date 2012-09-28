@@ -59,7 +59,7 @@
     </tbody>
   </table>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a hero-unit and a table around existing code.", code)
+= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a hero-unit and a table around existing code.", code, [*1..22])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!  Checkout the Twitter Bootstrap documentation and continue dressing up your webapp.")
 %h3 Feature 2.2 - Add "steps" to each Bucket Lists
@@ -94,11 +94,13 @@
 = tutorial_for("plain","Migrate the database", code)
 :ruby
   code = <<-HEREDOC
-  resources :lists do
-    resources :steps
+  BucketList::Application.routes.draw do
+    resources :lists do
+      resources :steps
+    end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the steps route under lists", code)
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the steps route under lists", code, [*2..4])
 
 :ruby
   code = <<-HEREDOC
@@ -149,17 +151,19 @@
 
 :ruby
   code = <<-HEREDOC
-  def create
-    @list = List.find(params[:list_id])
-    @step = @list.steps.new(params[:step])
-    if @step.save
-      redirect_to list_url(@list)
-    else
-      redirect_to list_url(@list)
+  class StepsController < ApplicationController
+    def create
+      @list = List.find(params[:list_id])
+      @step = @list.steps.new(params[:step])
+      if @step.save
+        redirect_to list_url(@list)
+      else
+        redirect_to list_url(@list)
+      end
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/steps_controller.rb</code>, create a create action", code)
+= tutorial_for("ruby","Open <code>app/controllers/steps_controller.rb</code>, create a create action", code, [*2..10])
 
 :ruby
   code = <<-HEREDOC
@@ -231,7 +235,7 @@
     scope :incomplete, where(:complete => false)
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/step.rb</code>, add a named scope for complete and incomplete steps", code)
+= tutorial_for("ruby","Open <code>app/models/step.rb</code>, add a named scope for complete and incomplete steps", code, [*5..6])
 
 :ruby
   code = <<-HEREDOC
@@ -253,7 +257,7 @@
     <% end %>
   </ul>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, using the named scopes, separate the steps into incomplete and complete", code)
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, using the named scopes, separate the steps into incomplete and complete", code, [*1..17])
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:
