@@ -52,7 +52,7 @@
 
   <% @questions.each do |question| %>
     <strong><%= question.name %></strong><br />
-    <%= question.reason %>
+    <%= question.reason %><br />
     <hr>
   <% end %>
   HEREDOC
@@ -96,7 +96,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code)
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*2..13])
 
 :ruby
   code = <<-HEREDOC
@@ -137,7 +137,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Create <code>app/controllers/questions_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [1, 15])
+= tutorial_for("ruby","Create <code>app/controllers/questions_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*2..14])
 
 :ruby
   code = <<-HEREDOC
@@ -171,7 +171,7 @@
     <hr>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Edit page for a Question inside the @questions.each block", code, [4])
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Edit page for a Question inside the @questions.each block", code, [6])
 
 
 %div.tut
@@ -189,7 +189,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a show action.", code, [1,5])
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a show action.", code, [*2..4])
 
 :ruby
   code = <<-HEREDOC
@@ -209,7 +209,7 @@
     <hr>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, change each Question name into a link to its show page.", code, [1,2,3,5,6,7,8])
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, change each Question name into a link to its show page.", code, [4])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Question.  You should be able to see a page of just that Question.")
 
@@ -225,7 +225,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a destroy action.", code, [1, 7])
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a destroy action.", code, [*2..6])
 
 :ruby
   code = <<-HEREDOC
@@ -239,7 +239,7 @@
     <hr>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Destroy action for each question", code)
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Destroy action for each question", code, [7])
 
 
 
