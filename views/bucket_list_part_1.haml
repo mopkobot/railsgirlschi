@@ -115,10 +115,7 @@
   HEREDOC
 = tutorial_for("ruby","Create <code>app/views/lists/new.html.erb</code>, create a form for users to create a new List", code)
 
-%div.tut
-  %span.label.label-success Action
-  Visit <code>http://localhost:3000/lists/new</code>
-  .well This is the new form you just created!  Try creating a few Lists from this web form.
+= action_for("Visit <code>http://localhost:3000/lists/new</code>", "This is the new form you just created!  Try creating a few Lists from this web form.")
 
 %h3 Feature 1.3 - Edit Bucket Lists from a form
 

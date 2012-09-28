@@ -1,5 +1,3 @@
-.alert.alert-error Work in Progress!  We haven't tested this out yet, at all.  It was just copy/pasted/search/replaced from Bucket List.  Feel free to fill in the blanks if you wish :)
-
 .page-header
   %h2
     RG! Answers - Part 1
@@ -53,8 +51,9 @@
   <h2>RG! Questions</h2>
 
   <% @questions.each do |question| %>
-    <strong><%= question.name %></strong> -
+    <strong><%= question.name %></strong><br />
     <%= question.reason %>
+    <hr>
   <% end %>
   HEREDOC
 = tutorial_for("ruby","Create <code>app/views/questions/index.html.erb</code>: Create an index view", code)
@@ -82,16 +81,18 @@
 
 :ruby
   code = <<-HEREDOC
-  def new
-    @question = Question.new
-  end
+  class QuestionsController < ApplicationController
+    def new
+      @question = Question.new
+    end
 
-  def create
-    @question = Question.new(params[:question])
-    if @question.save
-      redirect_to questions_url
-    else
-      render action: "new"
+    def create
+      @question = Question.new(params[:question])
+      if @question.save
+        redirect_to questions_url
+      else
+        render action: "new"
+      end
     end
   end
   HEREDOC
@@ -102,44 +103,41 @@
   <h2>Ask a Question</h2>
   <%= form_for @question do |form| %>
     <div>
-      <%= form.label :name %><br />
+      <%= form.label :name, "What is your question?" %><br />
       <%= form.text_field :name %>
     </div>
-
     <div>
-      <%= form.label :reason %><br />
+      <%= form.label :reason, "Explain to users why you're asking this." %><br />
       <%= form.text_field :reason %>
     </div>
-
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
 = tutorial_for("ruby","Create <code>app/views/questions/new.html.erb</code>, create a form for users to create a new Question", code)
 
-%div.tut
-  %span.label.label-success Action
-  Visit <code>http://localhost:3000/questions/new</code>
-  .well This is the new form you just created!  Try creating a few Questions from this web form.
+= action_for("Visit <code>http://localhost:3000/questions/new</code>", "This is the new form you just created!  Try creating a few Questions from this web form.")
 
 %h3 Feature 1.3 - Edit Questions from a form
 
 :ruby
   code = <<-HEREDOC
-  def edit
-    @question = Question.find(params[:id])
-  end
+  class QuestionsController < ApplicationController
+    def edit
+      @question = Question.find(params[:id])
+    end
 
-  def update
-    @question = Question.find(params[:id])
+    def update
+      @question = Question.find(params[:id])
 
-    if @question.update_attributes(params[:question])
-      redirect_to questions_path
-    else
-      render action: "edit"
+      if @question.update_attributes(params[:question])
+        redirect_to questions_path
+      else
+        render action: "edit"
+      end
     end
   end
   HEREDOC
-= tutorial_for("ruby","Create <code>app/controllers/questions_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code)
+= tutorial_for("ruby","Create <code>app/controllers/questions_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [1, 15])
 
 :ruby
   code = <<-HEREDOC
@@ -164,10 +162,13 @@
 
 :ruby
   code = <<-HEREDOC
+  <h2>RG! Questions</h2>
+
   <% @questions.each do |question| %>
-    <%= question.name %>
-    <%= question.reason %>
+    <strong><%= question.name %></strong><br />
+    <%= question.reason %><br />
     <%= link_to "Edit", edit_question_path(question) %>
+    <hr>
   <% end %>
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Edit page for a Question inside the @questions.each block", code, [4])
@@ -188,7 +189,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a show action.", code, [2,3,4])
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a show action.", code, [1,5])
 
 :ruby
   code = <<-HEREDOC
@@ -199,13 +200,16 @@
 
 :ruby
   code = <<-HEREDOC
+  <h2>RG! Questions</h2>
+
   <% @questions.each do |question| %>
-    <%= link_to question.name, question_path(question) %>
-    <%= question.reason %>
+    <strong><%= link_to question.name, question_path(question) %></strong><br />
+    <%= question.reason %><br />
     <%= link_to "Edit", edit_question_path(question) %>
+    <hr>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, change each Question name into a link to its show page.", code, [2])
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, change each Question name into a link to its show page.", code, [1,2,3,5,6,7,8])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Question.  You should be able to see a page of just that Question.")
 
@@ -221,18 +225,21 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a destroy action.", code, [2,3,4, 5, 6])
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a destroy action.", code, [1, 7])
 
 :ruby
   code = <<-HEREDOC
+  <h2>RG! Questions</h2>
+
   <% @questions.each do |question| %>
-    <%= link_to question.name, question_path(question) %><br />
+    <strong><%= link_to question.name, question_path(question) %></strong><br />
     <%= question.reason %><br />
-    <%= link_to "Edit", edit_question_path(question) %><br />
+    <%= link_to "Edit", edit_question_path(question) %>
     <%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %><br />
+    <hr>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Destroy action for each question", code, [5])
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Destroy action for each question", code)
 
 
 
