@@ -1,0 +1,171 @@
+.page-header
+  %h2
+    Short URL- Part 1
+  %p Short URL is an application that allows users to turn a long url into a short one for easier sharing.
+%h3 User should be able to...
+%h3 Feature 1.1 - Redirect a short URL to a long one
+:ruby
+  code = <<-HEREDOC
+  rails new short_url --skip-test-unit
+  cd short_url
+  rails generate resource Address location:string name:string
+  rake db:migrate
+  rails server
+  HEREDOC
+= tutorial_for("plain", "Create a new Rails Project", code)
+.alert.alert-success Coaches, give quick explanation about what each command does.
+
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  address = Address.new
+  address.location = "http://google.com"
+  address.name = "goog"
+  address.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Create some Lists", code)
+.alert.alert-success Coaches, explain how the console and the site work together.
+
+:ruby
+  code = <<-HEREDOC
+    ShortUrl::Application.routes.draw do
+      resources :addresses
+      get '/s/:name' => "addresses#redirect_address", :as => :redirect_address
+    end
+  HEREDOC
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route that will let us redirect the address name to its corresponding location", code, [3])
+
+.alert.alert-success Coaches, explain how params are mapped from routes to the controller.
+
+
+:ruby
+  code = <<-HEREDOC
+    class AddressesController < ApplicationController
+      def redirect_address
+        @address = Address.find_by_name(params[:name])
+        redirect_to @address.location
+      end
+    end
+  HEREDOC
+= tutorial_for("ruby", "Open <code>app/controllers/addresses_controller.rb</code>: Create an action to find the address by name and redirect to its location", code, [2, 3, 4, 5])
+
+= action_for("Visit <code>http://localhost:3000/s/goog</code>", "What happens? If you don't know why, make sure to ask your coach.")
+
+
+
+
+
+%h3 Feature 1.2 - Create the URLs through a web form instead of the console
+
+We'll do this in three steps:
+
+%ol
+  %li Make the form
+  %li Handle the form input
+  %li Show the user the new short URL
+
+%h4 1. Make the form
+
+:ruby
+  code = <<-HEREDOC
+    class AddressesController < ApplicationController
+      def redirect_name_to_location
+        @address = Address.find_by_name(params[:name])
+        redirect_to @address.location
+      end
+
+      def new
+        @address = Address.new
+      end
+    end
+  HEREDOC
+= tutorial_for("ruby", "Open <code>app/controllers/addresses_controller.rb</code>: Create a 'new' action.", code, [7, 8, 9])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Create a shorter URL</h2>
+  <%= form_for @address do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :location %><br />
+      <%= form.text_field :location %>
+    </div>
+
+    <p><%= form.submit "Shorten it!" %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby", "Create a file <code>app/views/addresses/new.html.erb</code>: Set up a form for a new address.", code)
+
+= action_for("Visit <code>http://localhost:3000/addresses/new</code>", "We don't need to add anything to <code>routes.rb</code> because Rails did it for us.")
+
+.alert.alert-success Coaches, explain the default routes for a resource.
+
+= action_for("Fill out the form and submit it.", "We need to do something with the form input.")
+
+
+%h4 2. Handle the form input
+
+:ruby
+  code = <<-HEREDOC
+  def new
+    @list = List.new
+  end
+
+  def create
+    @address = Address.new(params[:address])
+    if @address.save
+      redirect_to @address
+    else
+      render action: "new"
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/addresses_controller.rb</code>, add the <strong>create</strong> action in the controller.", code, (5..12).to_a)
+
+= action_for("Fill out the form again.", "Was your input saved to the database? How do you know?")
+
+%h4 3. Show the user the new short URL
+
+:ruby
+  code = <<-HEREDOC
+  def create
+    @address = Address.new(params[:address])
+    if @address.save
+      redirect_to @address
+    else
+      render action: "new"
+    end
+  end
+
+  def show
+    @address = Address.find(params[:id])
+  end
+  HEREDOC
+= tutorial_for("ruby","Add a <strong>show</strong> action to the controller.", code, [10, 11, 12])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Your new short URL</h2>
+  <%= redirect_address_url(name: @address.name) %> will redirect to <%= @address.location %>
+  HEREDOC
+= tutorial_for("ruby","Create a corresponding view, <code>app/views/addresses/show.html.erb</code>.", code, [10, 11, 12])
+
+= action_for("Fill out the form again.", "See the process work all the way through!")
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %li Redirect the site root to addresses#new
+    %li Prevent duplicate names
+    %li Automatically generate a name
+    %li Make sure the generated name is family friendly
+    %li Reuse names for duplicate locations
+    %li Generate QR codes
+    %li Add some rate limits to the redirections
+
