@@ -5,7 +5,7 @@
 
 :ruby
   code = <<-HEREDOC
-  rails new hello_world
+  rails new hello_world --skip-test-unit
   cd hello_world
   rails generate controller HelloWorld
   HEREDOC
@@ -17,7 +17,7 @@
       match '/hello_world' => 'hello_world#index'
     end
   HEREDOC
-= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code)
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [2])
 
 
 :ruby
@@ -29,7 +29,7 @@
       end
     end
     HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/hello_world_controller.rb</code>: Create an index action", code)
+= tutorial_for("ruby","Open <code>app/controllers/hello_world_controller.rb</code>: Create an index action", code, [*2..5])
 
 :ruby
   code = <<-HEREDOC
@@ -60,7 +60,7 @@
       end
     end
     HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/hello_world_controller.rb</code>: Modify the variable values", code)
+= tutorial_for("ruby","Open <code>app/controllers/hello_world_controller.rb</code>: Modify the variable values", code, [*3..4])
 
 = action_for("Visit <code>http://localhost:3000/hello_world</code>", "You should your new title and message")
 
