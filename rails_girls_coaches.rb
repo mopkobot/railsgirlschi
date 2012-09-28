@@ -24,6 +24,14 @@ class RailsGirlsCoaches < Sinatra::Base
     haml :rg_answers_part_2
   end
 
+  get '/event_tracker_part_1' do
+    haml :event_tracker_part_1
+  end
+
+  get '/event_tracker_part_2' do
+    haml :event_tracker_part_2
+  end
+
   get '/upload_site' do
     haml :upload_site
   end

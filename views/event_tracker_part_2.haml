@@ -1,0 +1,348 @@
+.page-header
+  %h2
+    Event Tracker - Part 2
+  %p Event Tracker is an application that allows users to keep track of who is particpating in different events.  Users can enter participant names under each Event that help manage the event planning.
+%h3 User should be able to...
+%h3 Feature 2.1 - See a pretty site!
+%p Let's dress up the app a little with some styling.
+%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
+%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
+
+:ruby
+  code = <<-HEREDOC
+  group :assets do
+    gem 'twitter-bootstrap-rails'
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+
+:ruby
+  code = <<-HEREDOC
+  bundle install
+  rails generate bootstrap:install
+  HEREDOC
+= tutorial_for("plain","Install the newly added gem", code)
+
+= action_for("Restart the Server and <code>http://localhost:3000</code>", "After restarting the server, you should now notice the look of the webpage changed slightly.")
+
+:ruby
+  code = <<-HEREDOC
+  <div class="container">
+    <%= yield %>
+  </div>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [1, 3])
+
+:ruby
+  code = <<-HEREDOC
+  <div class="hero-unit">
+    <h1>Event Tracker</h1>
+    <p>Planning an event? Track the participants here!</p>
+    <p><%= link_to "Create New Event", new_event_url, :class => "brn btn-primary btn-large" %></p>
+  </div>
+
+  <table class="table table-striped">
+    <thead> 
+      <th>Event</th>
+      <th>Actions</td>
+    </thead>
+    <tbody>
+      <% @events.each do |event| %>
+        <tr>
+          <td>
+            <%= link_to event.name, event_path(event) %> - <%= event.description %><br />
+            <%= event.location %>
+          </td>
+          <td>
+            <%= link_to "Edit", edit_event_path(event) %>
+            <%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody> 
+  </table>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, add a hero-unit and a table around existing code.", code, [*1..26])
+
+= action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!  Checkout the Twitter Bootstrap documentation and continue dressing up your webapp.")
+
+%h3 Feature 2.2 - Add "participants" to each Event
+
+:ruby
+  code = <<-HEREDOC
+  rails generate resource Participant name:string guests:integer event_id:integer
+  HEREDOC
+= tutorial_for("plain","Create a Participant resource", code)
+
+:ruby
+  code = <<-HEREDOC
+  class CreateParticipants < ActiveRecord::Migration
+    def change
+      create_table :participants do |t|
+        t.string :name
+        t.integer :guests, :default => 0
+        t.integer :event_id
+
+        t.timestamps
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>db/migrate/20120929XXXXXX_create_participants.rb</code>, default guests to 0", code, [5])
+
+:ruby
+  code = <<-HEREDOC
+  rake db:migrate
+  HEREDOC
+= tutorial_for("plain","Migrate the database", code)
+
+:ruby
+  code = <<-HEREDOC
+  EventTracker::Application.routes.draw do
+    resources :events do
+      resources :participants
+    end
+
+    root :to => 'participants#index'
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the participants route under events", code, [*2..4])
+
+:ruby
+  code = <<-HEREDOC
+  class Event < ActiveRecord::Base
+    attr_accessible :name, :description, :location
+
+    has_many :participants
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/event.rb</code>, add an association to the participants", code, [4])
+
+:ruby
+  code = <<-HEREDOC
+  class Participant < ActiveRecord::Base
+    attr_accessible :name, :guests, :event_id
+
+    belongs_to :event
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/participant.rb</code>, add the corresponding association", code, [4])
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  event = Event.first
+  participant = event.participants.new
+  participant.name = "Elvis Presley"
+  participant.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Try adding some participants in rails console", code)
+
+:ruby
+  code = <<-HEREDOC
+  <h3>Participants</h3>
+  <ul>
+  <% @event.participants.each do |participant| %>
+    <li><%= participant.name %> is bringing <%= participant.guests %> guests<br /></li>
+  <% end %>
+  </ul>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/events/show.html.erb</code>, add code to display the participants for each event at the bottom", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "See the participants underneath each event")
+
+%h3 Feature 2.3 - Add "participants" from the website
+
+:ruby
+  code = <<-HEREDOC
+  class ParticipantsController < ApplicationController
+    def create
+      @event = Event.find(params[:event_id])
+      @participant = @event.participants.new(params[:participant])
+      if @participant.save
+        redirect_to event_url(@event)
+      else
+        redirect_to event_url(@event)
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/participants_controller.rb</code>, create a create action", code, [*2..10])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Add Participant</h2>
+
+  <%= form_for [@event, @event.participants.new]  do |form| %>
+    <%= form.text_field :name %>
+    <%= form.submit %>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/events/show.html.erb</code>, add in code to display the web form to create participants at the bottom", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "Create some participants to your events using the web form.")
+
+%h3 Feature 2.4 - Mark an participant as bringing a "guest"
+:ruby
+  code = <<-HEREDOC
+  class ParticipantsController < ApplicationController
+    def add_guest
+      @event = Event.find(params[:event_id])
+      @participant = Participant.find(params[:id])
+      @participant.guests += 1
+      @participant.save
+      redirect_to event_url(@event)
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/participants_controller.rb</code>, create an action for adding a guest for participants", code, [*2..8])
+
+:ruby
+  code = <<-HEREDOC
+  resources :questions do
+    resources :answers do
+      member do
+        post :add_guest
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for add_guest action", code, [*2..6])
+
+:ruby
+  code = <<-HEREDOC
+  rake routes
+  HEREDOC
+= tutorial_for("plain", "See which new route it created", code)
+.alert.alert-success Coaches, give a quick overview of the rake routes output
+
+:ruby
+  code = <<-HEREDOC
+  <% @event.participants.each do |participant| %>
+    <li><%= participant.name %> is bringing <%= participant.guests %> guests<br />
+      Bringing a guest?  <%= button_to "Guest +1", add_guest_event_participant_path(@event.id, participant.id) %>
+    </li>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/events/show.html.erb</code>, add a +Guest button that goes to the add_guest route", code, [*2..3])
+
+= action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
+= action_for("Visit <code>http://localhost:3000</code>", "Visit a Event page.  Try adding guests on some participants and see the guests count go up.")
+
+%h3 Feature 2.5 - Display total number of participants for an event
+:ruby
+  code = <<-HEREDOC
+  class Event < ActiveRecord::Base
+    attr_accessible :name, :description, :location
+
+    has_many :participants
+
+    def total_participants
+      total = self.participants.count
+      self.participants.each do |participant|
+        total += participant.guests
+      end
+      return total
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/event.rb</code>, add a method to count the total number of participants in an event", code, [*6..12])
+
+:ruby
+  code = <<-HEREDOC
+  <div class="hero-unit">
+    <h1>Event Tracker</h1>
+    <p>Planning an event? Track the participants here!</p>
+    <p><%= link_to "Create New Event", new_event_url, :class => "brn btn-primary btn-large" %></p>
+  </div>
+  
+  <table class="table table-striped">
+    <thead>.
+      <th>Event</th>
+      <th>Total Participants</th>
+      <th>Actions</td>
+    </thead>
+    <tbody>
+      <% @events.each do |event| %>
+        <tr>
+          <td>
+            <%= link_to event.name, event_path(event) %> - <%= event.description %><br />
+            <%= event.location %>
+          </td>
+          <td><%= event.total_participants %></td>
+          <td>
+            <%= link_to "Edit", edit_event_path(event) %>
+            <%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %>
+          </td>
+        </tr>
+     <% end %>
+    </tbody>.
+  </table>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, using the new function, display total number of participants+guests for each event", code, [10,20])
+
+= action_for("Visit <code>http://localhost:3000</code>", "Visit a Event page.  Increase the number of guests participants are bringing, and then check the main page to see the count increase")
+
+%h3 Feature 2.6 - View the top answer for each question on the index page
+:ruby
+  code = <<-HEREDOC
+  class Question < ActiveRecord::Base
+    attr_accessible :name, :reason
+  
+    has_many :answers
+
+    def top_answer
+      top_answer = self.answers.by_votes.first
+      if top_answer.present?
+        top_answer.description
+      else
+        "Be the first to answer this question!"
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/question.rb</code>, add a method to find the top answer", code, [*6..13])
+
+:ruby
+  code = <<-HEREDOC
+  <div class="hero-unit">
+    <h1>RG! Answers</h1>
+    <p>Got a question?  Get the best answers!</p>
+    <p><%= link_to "Ask a Question", new_question_url, :class => "brn btn-primary btn-large" %></p>
+  </div>
+  
+  <table class="table table-striped">
+    <thead>
+      <th>Question</th>
+      <th>Actions</td>
+    </thead>
+    <tbody>
+      <% @questions.each do |question| %>
+        <tr>
+          <td>
+            <strong><%= link_to question.name, question_path(question) %></strong><br />
+            <%= question.reason %><br />
+            <strong>Top Answer:</strong> <%= question.top_answer %>
+          </td>
+          <td>
+            <%= link_to "Edit", edit_question_path(question) %>
+            <%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %>
+          </td> 
+        </tr>
+      <% end %>
+    </tbody> 
+  </table>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add code to display the top answer underneath each question", code, [*17..18])
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %li Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
+    %li Extract duplicated logic in Answers controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
+    %li Order the answers by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
+    %li Also, try the suggestions at the end of Part 1 (<a href="/rg_question_part_1" target="new">RG! Answers Part 1</a>).
+    %li Add gravatars (<a href="http://en.gravatar.com/site/implement/images/ruby/">http://en.gravatar.com/site/implement/images/ruby/</a>)
+

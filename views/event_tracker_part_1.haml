@@ -1,0 +1,263 @@
+.page-header
+  %h2
+    Event Tracker - Part 1
+  %p Event Tracker is an application that allows users to keep track of who is particpating in different events.  Users can enter participant names under each Event that help manage the event planning.
+%h3 User should be able to...
+%h3 Feature 1.1 - View a list of their Events
+:ruby
+  code = <<-HEREDOC
+  rails new event_tracker --skip-test-unit
+  cd event_tracker
+  rails generate resource Event name:string description:string location:string
+  rake db:migrate
+  rails server
+  HEREDOC
+= tutorial_for("plain", "Create a new Rails Project", code)
+.alert.alert-success Coaches, give quick explanation about what each command does.
+
+%div.tut
+  %span.label.label-success Action
+  Visit in your browser <code>http://localhost:3000</code>
+  .well This is the default Rails landing page.  Let's try removing it and see what happens...
+
+%div.tut
+  %span.label.label-success Action
+  Delete the file <code>public/index.html</code> and re-visit <code>http://localhost:3000</code>
+  .well Now what do you see?
+.alert.alert-success Coaches, explain why removing public created an error and how we are going to solve this by modifying rails routes.
+
+:ruby
+  code = <<-HEREDOC
+    EventTracker::Application.routes.draw do
+      resources :events
+      root :to => 'events#index'
+    end
+  HEREDOC
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
+
+
+:ruby
+  code = <<-HEREDOC
+    class EventsController < ApplicationController
+      def index
+       @events = Event.all
+      end
+    end
+    HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>: Create an index action in the EventsController", code, [2, 3, 4])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Events</h2>
+
+  <% @events.each do |event| %>
+    <%= event.name %> -
+    <%= event.description %><br />
+    <%= event.location %>
+    <br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/events/index.html.erb</code>: Create an index view", code)
+
+= action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
+= action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'Events' but no events because haven't created any yet.")
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  event = Event.new
+  event.name = "Rails Girls Chicago"
+  event.description = "Learn Rails in a fun and friendly atmosphere"
+  event.location = "ThoughtWorks offices, Chicago"
+  event.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Create some Events", code)
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000</code>
+  .well You should now see your newly created Event.  If you don't, please ask your coach for some help.
+
+%h3 Feature 1.2 - Create Events using a form on the site
+
+:ruby
+  code = <<-HEREDOC
+  class EventsController < ApplicationController
+    def new
+      @event = Event.new
+    end
+
+    def create
+      @event = Event.new(params[:event])
+      if @event.save
+        redirect_to events_url
+      else
+        render action: "new"
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*2..13])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Create New Event</h2>
+  <%= form_for @event do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :description %><br />
+      <%= form.text_field :description %>
+    </div>
+
+    <div>
+      <%= form.label :location %><br />
+      <%= form.text_field :location %>
+    </div>
+
+    <p><%= form.submit %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/events/new.html.erb</code>, create a form for users to create a new Event", code)
+
+= action_for("Visit <code>http://localhost:3000/events/new</code>", "This is the new form you just created!  Try creating a few Events from this web form.")
+
+%h3 Feature 1.3 - Edit Events from a form
+
+:ruby
+  code = <<-HEREDOC
+  class EventsController < ApplicationController
+    def edit
+      @event = Event.find(params[:id])
+    end
+
+    def update
+      @event = Event.find(params[:id])
+
+      if @event.update_attributes(params[:event])
+        redirect_to events_path
+      else
+        render action: "edit"
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*2..14])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Edit <%= @event.name %></h2>
+
+  <%= form_for @event do |form| %>
+    <div>
+      <%= form.label :name %><br />
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :description %><br />
+      <%= form.text_field :description %>
+    </div>
+
+    <div>
+      <%= form.label :location %><br />
+      <%= form.text_field :location %>
+    </div>
+
+    <p><%= form.submit %></p>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/events/edit.html.erb</code>, write html/erb for a form to edit a Event", code)
+
+
+:ruby
+  code = <<-HEREDOC
+  <% @events.each do |event| %>
+    <%= event.name %> -
+    <%= event.description %><br />
+    <%= event.location %>
+    <%= link_to "Edit", edit_event_path(event) %>
+    <br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, add a link to the Edit page for a Event inside the @events.each block", code, [5])
+
+
+%div.tut
+  %span.label.label-success Action
+  Visit <code>http://localhost:3000</code>
+  .well Click on the Edit link for a Event.  You should be able to update your event.  If you can't, please ask your coach for some help.
+
+%h3 Feature 1.4 - View each Event separately on its own page
+
+:ruby
+  code = <<-HEREDOC
+  class EventsController < ApplicationController
+    def show
+      @event = Event.find(params[:id])
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add a show action.", code, [2,3,4])
+
+:ruby
+  code = <<-HEREDOC
+  <h2><%= @event.name %></h2>
+  <h3><%= @event.description %></h3>
+  <p><%= @event.location %></p>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/events/show.html.erb</code>, write html/erb code to show Event information.", code)
+
+:ruby
+  code = <<-HEREDOC
+  <% @events.each do |event| %>
+    <%= link_to event.name, event_path(event) %> -
+    <%= event.description %><br />
+    <%= event.location %>
+    <%= link_to "Edit", edit_event_path(event) %>
+    <br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, change each Event name into a link to its show page.", code, [2])
+
+= action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Event.  You should be able to see a page of just that Event.")
+
+%h3 Feature 1.5 - Delete Events
+
+:ruby
+  code = <<-HEREDOC
+  class EventsController < ApplicationController
+    def destroy
+      @event = Event.find(params[:id])
+      @event.destroy
+      redirect_to events_url
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add a destroy action.", code, [2,3,4, 5, 6])
+
+:ruby
+  code = <<-HEREDOC
+  <% @events.each do |event| %>
+    <%= link_to event.name, event_path(event) %> -
+    <%= event.description %><br />
+    <%= event.location %>
+    <%= link_to "Edit", edit_event_path(event) %>
+    <%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %>
+    <br />
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, add a link to the Destroy action for each event", code, [6])
+
+
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %ol Add Flash messages for actions, such as un/successfully adding, updating, deleting, etc (<a href="http://guides.rubyonrails.org/action_controller_overview.html#the-flash" target="new">Flash Messages</a>).
+    %ol Add model validations (<a href="http://guides.rubyonrails.org/active_record_validations_callbacks.html#validation-helpers" target="new">Validation Helpers</a>).
+    %ol Extract the forms into a partial (<a href="http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials" target="new">Using Partials</a>)
