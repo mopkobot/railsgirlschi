@@ -18,15 +18,12 @@
 
 :ruby
   code = <<-HEREDOC
-    <h1>Short URL</h1>
-    <p>This is a site for you to create short URLs from long ones!</p>
-    <p><%= link_to "Get Started", new_address_url %></p>
-
+    <h2>Recently Shortened URLs</h2>
     <% @addresses.each do |address| %>
-      <%= redirect_address_url(name: address.name) %> - <%= address.location %><br>
+      <%= forward_user_url(name: address.name) %> - <%= address.location %><br>
     <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/addresses/index.html.erb</code>, add a hero-unit and a table around existing code.", code, [*1..22])
+= tutorial_for("ruby","Create <code>app/views/addresses/index.html.erb</code>, add a loop to show all the addresses.", code, [*1..22])
 
 = action_for("Visit <code>http://localhost:3000/addresses</code>", "After creating an index action, you should now be able to see a list of all the addresses.")
 
@@ -41,9 +38,10 @@
 
 :ruby
   code = <<-HEREDOC
-  group :assets do
-    gem 'twitter-bootstrap-rails'
-  end
+    group :assets do
+      gem 'twitter-bootstrap-rails'
+      gem 'sass-rails',   '~> 3.2.3'
+      gem 'coffee-rails', '~> 3.2.1'
   HEREDOC
 = tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
 
@@ -58,17 +56,19 @@
 
 :ruby
   code = <<-HEREDOC
-    <div class="hero-unit">
-      <h1>Short URL</h1>
-      <p>This is a site for you to create short URLs from long ones!</p>
-      <p><%= link_to "Get Started", new_address_url %></p>
-    </div>
+    <body>
+      <div class="hero-unit">
+        <h1>Short URL</h1>
+        <p>This is a site for you to create short URLs from long ones!</p>
+        <p><%= link_to "Get Started", new_address_url %></p>
+      </div>
 
-    <div class="container">
-      <%= yield %>
-    </div>
+      <div class="container">
+        <%= yield %>
+      </div>
+    </body>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container, and add a header.", code, [*1..7, 9])
+= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container, and add a header.", code, [*2..8, 10])
 
 
 :ruby
@@ -83,14 +83,14 @@
       <tbody>
       <% @addresses.each do |address| %>
         <tr>
-          <td><%= redirect_address_url(name: address.name) %></td>
+          <td><%= forward_user_url(name: address.name) %></td>
           <td><%= address.location %></td>
         </tr>
       <% end %>
       </tbody>
     </table>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/addresses/index.html.erb</code>, add a table showing the addresses.", code, [*1..22])
+= tutorial_for("ruby","Open <code>app/views/addresses/index.html.erb</code>, update the loop to create a table showing the addresses.", code, [*3..22])
 
 = action_for("Visit <code>http://localhost:3000/addresses/</code>", "Your site should be looking a little better now!")
 
@@ -128,14 +128,14 @@
 :ruby
   code = <<-HEREDOC
     class AddressesController < ApplicationController
-      def redirect_name_to_location
+      def forward_user
         @address = Address.find_by_name(params[:name])
         @address.clicks = @address.clicks + 1
         @address.save
         redirect_to @address.location
       end
   HEREDOC
-= tutorial_for("ruby","Also in <code>app/controllers/addresses_controller.rb</code>, update the <strong>redirect_name_to_location</strong> method to also update the clicks count.", code, [4, 5])
+= tutorial_for("ruby","Open <code>app/controllers/addresses_controller.rb</code>, update the <strong>forward_user</strong> method to also update the clicks count.", code, [4, 5])
 
 :ruby
   code = <<-HEREDOC
@@ -148,7 +148,7 @@
       <tbody>
       <% @addresses.each do |address| %>
         <tr>
-          <td><%= redirect_name_to_location_url(name: address.name) %></td>
+          <td><%= forward_user_url(name: address.name) %></td>
           <td><%= address.location %></td>
           <td><%= address.clicks %></td>
         </tr>
@@ -169,19 +169,26 @@
     ShortUrl::Application.routes.draw do
       resources :addresses
 
-      get '/s/:name' => "addresses#redirect_name_to_location", :as => :redirect_address
+      get '/s/:name' => "addresses#forward_user", :as => :forward_user
 
       root :to => 'addresses#index'
     end
   HEREDOC
 = tutorial_for("ruby","Open <code>config/routes.rb</code> and map the site root to addresses#index.", code, [6])
 
+= action_for("Remove <code>public/index.html</code>.")
+
+= action_for("Visit <code>http://localhost:3000/</code>.")
+
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:
   %ul
     %li Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
+    %li Remove the br tags from new.html.erb
     %li Grab an image off of google for a "logo" for the header
     %li Order the list of URLs by number of clicks (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
     %li Also, try the suggestions at the end of Part 1 (<a href="/short_url_part_1" target="new">Short URL Part 1</a>).
+    %li Validate presence of name and address
+    %li Validate that address starts with http
     %li Add some rate limits to the redirections

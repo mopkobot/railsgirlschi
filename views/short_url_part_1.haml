@@ -10,7 +10,6 @@
   cd short_url
   rails generate resource Address location:string name:string
   rake db:migrate
-  rails server
   HEREDOC
 = tutorial_for("plain", "Create a new Rails Project", code)
 .alert.alert-success
@@ -22,7 +21,7 @@
   code = <<-HEREDOC
   rails console
   address = Address.new
-  address.location = "http://google.com"
+  address.location = "https://www.google.com/search?q=rails+girls+chicago"
   address.name = "goog"
   address.save
   exit
@@ -34,7 +33,7 @@
   code = <<-HEREDOC
     ShortUrl::Application.routes.draw do
       resources :addresses
-      match '/s/:name' => "addresses#redirect_name_to_location", :as => :redirect_address
+      match '/s/:name' => "addresses#forward_user", :as => :forward_user
     end
   HEREDOC
 = tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route that will let us redirect the address name to its corresponding location", code, [3])
@@ -45,13 +44,19 @@
 :ruby
   code = <<-HEREDOC
     class AddressesController < ApplicationController
-      def redirect_name_to_location
+      def forward_user
         @address = Address.find_by_name(params[:name])
         redirect_to @address.location
       end
     end
   HEREDOC
 = tutorial_for("ruby", "Open <code>app/controllers/addresses_controller.rb</code>: Create an action to find the address by name and redirect to its location", code, [2, 3, 4, 5])
+
+:ruby
+  code = <<-HEREDOC
+  rails server
+  HEREDOC
+= tutorial_for("plain","Start your server", code)
 
 = action_for("Visit <code>http://localhost:3000/s/goog</code>", "What happens? If you don't know why, make sure to ask your coach.")
 
@@ -73,7 +78,7 @@ We'll do this in three steps:
 :ruby
   code = <<-HEREDOC
     class AddressesController < ApplicationController
-      def redirect_name_to_location
+      def forward_user
         @address = Address.find_by_name(params[:name])
         redirect_to @address.location
       end
@@ -83,19 +88,19 @@ We'll do this in three steps:
       end
     end
   HEREDOC
-= tutorial_for("ruby", "Open <code>app/controllers/addresses_controller.rb</code>: Create a 'new' action.", code, [7, 8, 9])
+= tutorial_for("ruby", "Open <code>app/controllers/addresses_controller.rb</code>: Create a <strong>'new'</strong> action.", code, [7, 8, 9])
 
 :ruby
   code = <<-HEREDOC
   <h2>Create a shorter URL</h2>
   <%= form_for @address do |form| %>
     <div>
-      <%= form.label :name %>
+      <%= form.label :name %><br>
       <%= form.text_field :name %>
     </div>
 
     <div>
-      <%= form.label :location, "Location - must start with http://" %>
+      <%= form.label :location, "Location - must start with http://" %><br>
       <%= form.text_field :location %>
     </div>
 
@@ -108,7 +113,7 @@ We'll do this in three steps:
 
 .alert.alert-success Coaches, explain the default routes for a resource.
 
-= action_for("Fill out the form and submit it.", "Error! We need to do something with the form input.")
+= action_for("Fill out the form and submit it.", "Unknown action! We need to do something with the form input.")
 
 
 %h4 2. Handle the form input
@@ -122,7 +127,7 @@ We'll do this in three steps:
   def create
     @address = Address.new(params[:address])
     if @address.save
-      redirect_to new_address_path
+      redirect_to @address
     else
       render action: "new"
     end
@@ -132,7 +137,7 @@ We'll do this in three steps:
 
 .alert.alert-success Coaches, explain how form elements are mapped to the params hash.
 
-= action_for("Fill out the form again.", "Was your input saved to the database? How do you know?")
+= action_for("Fill out the form again.", "Was your input saved to the database? How do you know? Ask a coach if you aren't sure.")
 
 %h4 3. Show the user the new short URL
 
@@ -154,16 +159,16 @@ We'll do this in three steps:
     @address = Address.find(params[:id])
   end
   HEREDOC
-= tutorial_for("ruby","Add a <strong>show</strong> action to the controller.", code, [4, 10, 11, 12])
+= tutorial_for("ruby","Add a <strong>show</strong> action to the controller.", code, [10, 11, 12])
 
 :ruby
   code = <<-HEREDOC
   <h2>Your new short URL</h2>
-  <%= redirect_address_url(name: @address.name) %> will redirect to <%= @address.location %>
+  <%= forward_user_url(name: @address.name) %> will redirect to <%= @address.location %>
   HEREDOC
 = tutorial_for("ruby","Create a corresponding view, <code>app/views/addresses/show.html.erb</code>.", code, [10, 11, 12])
 
-.alert.alert-success Coaches, explain redirect_address_url and <code>rake routes</code>.
+.alert.alert-success Coaches, explain forward_user_url and <code>rake routes</code>.
 
 = action_for("Fill out the form again.", "See the process work all the way through!")
 
@@ -203,7 +208,6 @@ We'll do this in three steps:
 = tutorial_for("ruby","Open <code>app/views/addresses/new.html.rb</code>. Add a place for the validation message to be show for the uniqueness of <strong>name</strong>.", code, [*3..7])
 
 = action_for("Fill out the form again. Use a name you used before (like 'goog').")
-
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:
