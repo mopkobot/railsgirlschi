@@ -285,64 +285,61 @@
 
 = action_for("Visit <code>http://localhost:3000</code>", "Visit a Event page.  Increase the number of guests participants are bringing, and then check the main page to see the count increase")
 
-%h3 Feature 2.6 - View the top answer for each question on the index page
+%h3 Feature 2.6 - Add an special indication if the participant is bringing many guests
 :ruby
   code = <<-HEREDOC
-  class Question < ActiveRecord::Base
-    attr_accessible :name, :reason
-  
-    has_many :answers
+  class Participant < ActiveRecord::Base
+    attr_accessible :guests, :name, :event_id
 
-    def top_answer
-      top_answer = self.answers.by_votes.first
-      if top_answer.present?
-        top_answer.description
+    belongs_to :event
+
+    def popularity_label
+      if guests < 2
+        ""
+      elsif guests < 5
+        "Friendly"
+      elsif guests < 10
+        "Popular"
+      elsif guests < 25
+        "Social Butterfly"
       else
-        "Be the first to answer this question!"
+        "Pop Icon"
       end
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/question.rb</code>, add a method to find the top answer", code, [*6..13])
+= tutorial_for("ruby","Open <code>app/models/participant.rb</code>, add a method to label the popularity of the user", code, [*6..18])
 
 :ruby
   code = <<-HEREDOC
-  <div class="hero-unit">
-    <h1>RG! Answers</h1>
-    <p>Got a question?  Get the best answers!</p>
-    <p><%= link_to "Ask a Question", new_question_url, :class => "brn btn-primary btn-large" %></p>
-  </div>
+  <h2><%= @event.name %></h2>
+  <h3><%= @event.description %></h3>
+  <p><%= @event.location %></p>
   
-  <table class="table table-striped">
-    <thead>
-      <th>Question</th>
-      <th>Actions</td>
-    </thead>
-    <tbody>
-      <% @questions.each do |question| %>
-        <tr>
-          <td>
-            <strong><%= link_to question.name, question_path(question) %></strong><br />
-            <%= question.reason %><br />
-            <strong>Top Answer:</strong> <%= question.top_answer %>
-          </td>
-          <td>
-            <%= link_to "Edit", edit_question_path(question) %>
-            <%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %>
-          </td> 
-        </tr>
-      <% end %>
-    </tbody> 
-  </table>
+  <h3>Participants</h3>
+  <ul>
+    <% @event.participants.each do |participant| %>
+      <li><strong><%= participant.popularity_label %></strong> <%= participant.name %> is bringing <%= participant.guests %> guests<br />
+        Bringing a guest?  <%= button_to "Guest +1", add_guest_event_participant_path(@event.id, participant.id) %>
+      </li>
+    <% end %>
+  </ul>
+  
+  <h2>Add Participant</h2>
+  
+  <%= form_for [@event, @event.participants.new]  do |form| %>
+    <%= form.text_field :name %>
+    <%= form.submit %>
+  <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add code to display the top answer underneath each question", code, [*17..18])
+= tutorial_for("ruby","Open <code>app/views/events/show.html.erb</code>, add code to display the popularity label next to the person's name", code, [8])
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:
   %ul
     %li Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
-    %li Extract duplicated logic in Answers controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
-    %li Order the answers by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
-    %li Also, try the suggestions at the end of Part 1 (<a href="/rg_question_part_1" target="new">RG! Answers Part 1</a>).
+    %li Extract duplicated logic in Events controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
+    %li Order the participants by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
+    %li Also, try the suggestions at the end of Part 1 (<a href="/event_tracker_part_1" target="new">Event Tracker Part 1</a>).
     %li Add gravatars (<a href="http://en.gravatar.com/site/implement/images/ruby/">http://en.gravatar.com/site/implement/images/ruby/</a>)
 
