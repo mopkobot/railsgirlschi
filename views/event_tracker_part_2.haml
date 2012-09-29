@@ -200,8 +200,8 @@
 
 :ruby
   code = <<-HEREDOC
-  resources :questions do
-    resources :answers do
+  resources :events do
+    resources :participants do
       member do
         post :add_guest
       end
