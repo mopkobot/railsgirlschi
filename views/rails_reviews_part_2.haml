@@ -1,0 +1,255 @@
+.alert.alert-error Work in Progress!
+.page-header
+  %h2
+    Rails Reviews - Part 2
+  %p Rails Reviews is the newest restaurant review site in the Chicago area! The site is going to have Restaurants and allow users to add reviews.
+
+%h3 User should be able to...
+%h3 Feature 2.1 - See a pretty site!
+%p Let's dress up the app a little with some styling.
+%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
+%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
+
+:ruby
+  code = <<-HEREDOC
+  group :assets do
+    gem 'twitter-bootstrap-rails'
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+
+:ruby
+  code = <<-HEREDOC
+  bundle install
+  rails generate bootstrap:install
+  HEREDOC
+= tutorial_for("plain","Install the newly added gem", code)
+
+= action_for("Restart the Server and <code>http://localhost:3000</code>", "After restarting the server, you should now notice the look of the webpage changed slightly.")
+
+:ruby
+  code = <<-HEREDOC
+  <div class="container">
+    <%= yield %>
+  </div>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [1, 3])
+
+:ruby
+  code = <<-HEREDOC
+  <div class="hero-unit">
+    <h1>Rails Reviews</h1>
+    <p>Best Restaurant Reviews in the Chicago Area!</p>
+    <p><%= link_to "Add a Restaurant", new_restaurant_url, :class => "brn btn-primary btn-large" %></p>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <th>Name</th>
+      <th>Phone Number</td>
+      <th>Actions</td>
+    </thead>
+    <tbody>
+      <% @restaurants.each do |restaurant| %>
+        <tr>
+          <td><%= link_to restaurant.name, restaurant_path(restaurant) %></td>
+          <td><%= restaurant.reason %></td>
+          <td><%= link_to "Edit", edit_restaurant_path(restaurant) %> | <%= link_to 'Destroy', restaurant, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a hero-unit and a table around existing code.", code, [*1..22])
+
+= action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!  Checkout the Twitter Bootstrap documentation and continue dressing up your webapp.")
+%h3 Feature 2.2 - Add "reviews" to each  Restaurants
+
+:ruby
+  code = <<-HEREDOC
+  rails generate resource Review description:string star:integer restaurant_id:integer
+  HEREDOC
+= tutorial_for("plain","Create a Reviews resource", code)
+
+:ruby
+  code = <<-HEREDOC
+  class CreateReviews < ActiveRecord::Migration
+    def change
+      create_table :reviews do |t|
+        t.string :description
+        t.boolean :star, :default => 0
+        t.integer :restaurant_id
+
+        t.timestamps
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>db/migrate/20120928XXXXXX_create_reviews.rb</code>, add a default completed to false", code, [5])
+
+:ruby
+  code = <<-HEREDOC
+  rake db:migrate
+  HEREDOC
+
+= tutorial_for("plain","Migrate the database", code)
+:ruby
+  code = <<-HEREDOC
+  Restaurant::Application.routes.draw do
+    resources :restaurants do
+      resources :reviews
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the reviews route under restaurants", code, [*2..4])
+
+:ruby
+  code = <<-HEREDOC
+  class Restaurant < ActiveRecord::Base
+    attr_accessible :name, :phone
+
+    has_many :reviews
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/restaurant.rb</code>, add an association to the reviews", code, [4])
+
+:ruby
+  code = <<-HEREDOC
+  class Review < ActiveRecord::Base
+    attr_accessible :description, :star, :restaurant_id
+
+    belongs_to :restaurant
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/review.rb</code>, add the corresponding association", code, [4])
+
+:ruby
+  code = <<-HEREDOC
+  rails console
+  restaurant = Restaurant.first
+  review = restaurant.reviews.new
+  review.description = "Wow, the Ruby cupcakes were amazing."
+  review.save
+  exit
+  HEREDOC
+= tutorial_for("plain","Try adding some reviews in rails console", code)
+
+:ruby
+  code = <<-HEREDOC
+  <ul>
+  <% @restaurant.reviews.each do |review| %>
+    <li>
+      <%= review.description %> | <%= review.complete %>
+    </li>
+  <% end %>
+  </ul>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, add code to display the reviews for each restaurant", code)
+
+= action_for("Visit <code>http://localhost:3000</code>", "See the reviews underneath each restaurant")
+
+%h3 Feature 2.3 - Add "reviews" from the website
+
+:ruby
+  code = <<-HEREDOC
+  class ReviewsController < ApplicationController
+    def create
+      @restaurant = Restaurant.find(params[:restaurant_id])
+      @review = @restaurant.reviews.new(params[:review])
+      if @review.save
+        redirect_to restaurant_url(@restaurant)
+      else
+        redirect_to restaurant_url(@restaurant)
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/reviews_controller.rb</code>, create a create action", code, [*2..10])
+
+:ruby
+  code = <<-HEREDOC
+  <h2>Add Review</h2>
+  <p>Post your honest review about this Chicago Restaurant</p>
+
+  <%= form_for [@restaurant, @restaurant.reviews.new]  do |form| %>
+    <%= form.text_field :description %>
+    <%= form.submit %>
+  <% end %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, add in code to display the web form to create reviews", code)
+
+%h3 Feature 2.4 - Rate Restaurants
+:ruby
+  code = <<-HEREDOC
+  class RestaurantController < ApplicationController
+    def star
+      @restaurant = Restaurant.find(params[:restaurant_id])
+      @review = Review.find(params[:id])
+      @review.star += 1
+      @review.save
+      redirect_to restaurant_url(@restaurant)
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/controllers/reviews_controller.rb</code>, create an action for adding stars to reviews", code, [2,3,4,5,6,7,8])
+
+:ruby
+  code = <<-HEREDOC
+  resources :restaurants do
+    resources :reviews do
+      member do
+        post :star
+      end
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for star action", code, [2, 3, 4, 5, 6])
+
+:ruby
+  code = <<-HEREDOC
+  rake routes
+  HEREDOC
+= tutorial_for("plain", "See which new route it created", code)
+.alert.alert-success Coaches, give a quick overview of the rake routes output
+
+:ruby
+  code = <<-HEREDOC
+  <ul>
+    <% @restaurant.reviews.each do |review| %>
+      <li>
+        <%= review.description %> | <%= review.star %>
+        <%= button_to "Complete", star_restaurant_review_path(@restaurant.id, review.id) %>
+      </li>
+    <% end %>
+  </ul>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, add a button that allows people to add stars to reviews", code, [5])
+
+%h3 Feature 2.5 - View an average of the restaurant reviews
+:ruby
+  code = <<-HEREDOC
+  class Restaurant < ActiveRecord::Base
+    attr_accessible :name, :phone
+
+    has_many :reviews
+
+    def average_stars
+      #pending
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/restaurant.rb</code>, create a method to calcualte the average stars for each restaurant", code, [*5..6])
+
+:ruby
+  code = <<-HEREDOC
+  # TBD
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, display the average rating for each restaurant", code, [*1..17])
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %ol Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
+    %ol Extract duplicated logic in Reviews controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
+    %ol Order the reviews by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
+    %ol Also, try the suggestions at the end of Part 1 (<a href="/rails_reviews_part_1" target="new">Rails Reviews Part 1</a>).
