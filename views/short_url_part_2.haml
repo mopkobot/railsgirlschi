@@ -1,0 +1,186 @@
+.page-header
+  %h2
+    Short URL- Part 2
+  %p Short URL is an application that allows users to turn a long url into a short one for easier sharing.
+
+%h3 User should be able to...
+
+%h3 Feature 2.1 - Show a list of shortened URLs on the homepage
+
+:ruby
+  code = <<-HEREDOC
+    class AddressesController < ApplicationController
+      def index
+        @address = Address.all
+      end
+  HEREDOC
+= tutorial_for("ruby","In <code>app/controllers/addresses_controller.rb</code>, add an <strong>index</strong> method and put all the addresses into a variable.", code, [*2..4])
+
+:ruby
+  code = <<-HEREDOC
+    <h1>Short URL</h1>
+    <p>This is a site for you to create short URLs from long ones!</p>
+    <p><%= link_to "Get Started", new_address_url %></p>
+
+    <% @addresses.each do |address| %>
+      <%= redirect_address_url(name: address.name) %> - <%= address.location %><br>
+    <% end %>
+  HEREDOC
+= tutorial_for("ruby","Create <code>app/views/addresses/index.html.erb</code>, add a hero-unit and a table around existing code.", code, [*1..22])
+
+
+
+
+
+
+%h3 Feature 2.2 - See a pretty site!
+%p Let's dress up the app a little with some styling.
+%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework.
+%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
+
+:ruby
+  code = <<-HEREDOC
+  group :assets do
+    gem 'twitter-bootstrap-rails'
+  end
+  HEREDOC
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+
+:ruby
+  code = <<-HEREDOC
+  bundle install
+  rails generate bootstrap:install
+  HEREDOC
+= tutorial_for("plain","Install the newly added gem", code)
+
+= action_for("Restart the Server and visit <code>http://localhost:3000/addresses</code>", "After restarting the server, you should now notice the look of the webpage changed slightly.")
+
+:ruby
+  code = <<-HEREDOC
+    <div class="hero-unit">
+      <h1>Short URL</h1>
+      <p>This is a site for you to create short URLs from long ones!</p>
+      <p><%= link_to "Get Started", new_address_url %></p>
+    </div>
+
+    <div class="container">
+      <%= yield %>
+    </div>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container, and add a header.", code, [*1..7, 9])
+
+
+:ruby
+  code = <<-HEREDOC
+    <h2>Recently Shortened URLs</h2>
+
+    <table class="table table-striped">
+      <thead>
+      <th>Short URL</th>
+      <th>Long URL</th>
+      </thead>
+      <tbody>
+      <% @addresses.each do |address| %>
+        <tr>
+          <td><%= redirect_address_url(name: address.name) %></td>
+          <td><%= address.location %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/addresses/index.html.erb</code>, add a table showing the addresses.", code, [*1..22])
+
+= action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!")
+
+
+%h3 Feature 2.3 - Track how many people have used the URL
+
+.alert.alert-success
+  Coaches, explain what migrations are for.
+
+:ruby
+  code = <<-HEREDOC
+  rails generate migration track_clicks
+  HEREDOC
+= tutorial_for("plain", "Create a new migration file", code)
+
+:ruby
+  code = <<-HEREDOC
+  class TrackClicks < ActiveRecord::Migration
+    def up
+      add_column :addresses, :clicks, :integer, :default => 0
+    end
+
+    def down
+    end
+  end
+  HEREDOC
+= tutorial_for("ruby", "Open the migration file <code>db/migrations/20120928XXXXXX_track_clicks.rb</code>. Add a column called 'clicks' to the addresses table.", code, [3])
+
+:ruby
+  code = <<-HEREDOC
+  rake db:migrate
+  HEREDOC
+= tutorial_for("plain", "Run the migration to add the column.", code)
+
+:ruby
+  code = <<-HEREDOC
+    class AddressesController < ApplicationController
+      def redirect_name_to_location
+        @address = Address.find_by_name(params[:name])
+        @address.clicks = @address.clicks + 1
+        @address.save
+        redirect_to @address.location
+      end
+  HEREDOC
+= tutorial_for("ruby","Also in <code>app/controllers/addresses_controller.rb</code>, add an <strong>index</strong> method that we'll use to show.", code, [4, 5])
+
+:ruby
+  code = <<-HEREDOC
+    <table class="table table-striped">
+      <thead>
+      <th>Short URL</th>
+      <th>Long URL</th>
+      <th>Clicks</th>
+      </thead>
+      <tbody>
+      <% @addresses.each do |address| %>
+        <tr>
+          <td><%= redirect_address_url(name: address.name) %></td>
+          <td><%= address.location %></td>
+          <td><%= address.clicks %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/views/addresses/index.html.erb</code>, add a column to the table to show the clicks.", code, [5, 12])
+
+= action_for("Restart your server")
+
+= action_for("Visit some of your short URLs, watch the click count update.")
+
+%h3 Feature 2.4 - Show the list of recent short URLs on the homepage
+
+:ruby
+  code = <<-HEREDOC
+    ShortUrl::Application.routes.draw do
+      resources :addresses
+
+      get '/s/:name' => "addresses#redirect_name_to_location", :as => :redirect_address
+
+      root :to => 'addresses#index'
+    end
+  HEREDOC
+= tutorial_for("ruby","Open <code>config/routes.rb</code> and map the site root to addresses#index.", code, [6])
+
+
+.alert.alert-success 
+  Coaches, if there is time left over in this session, try some of the following:
+  %ul
+    %li Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
+    %li Grab an image off of google for a "logo" for the header
+    %li Order the list of URLs by number of clicks (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
+    %li Also, try the suggestions at the end of Part 1 (<a href="/short_url_part_1" target="new">Short URL Part 1</a>).
+    %li Add some rate limits to the redirections

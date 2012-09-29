@@ -18,6 +18,7 @@ class RailsGirlsCoaches < Sinatra::Base
     rails_reviews_part_1
     rails_revies_part_2
     short_url_part_1
+    short_url_part_2
     upload_site
     hello_world
   }
