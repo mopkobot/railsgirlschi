@@ -8,48 +8,24 @@ class RailsGirlsCoaches < Sinatra::Base
     haml :index
   end
 
-  get '/bucket_list_part_1' do
-    haml :bucket_list_part_1
-  end
+  paths = %w{
+    bucket_list_part_1
+    bucket_list_part_2
+    rg_answers_part_1
+    rg_answers_part_2
+    event_tracker_part_1
+    event_tracker_part_2
+    rails_reviews_part_1
+    rails_revies_part_2
+    short_url_part_1
+    upload_site
+    hello_world
+  }
 
-  get '/bucket_list_part_2' do
-    haml :bucket_list_part_2
-  end
-
-  get '/rg_answers_part_1' do
-    haml :rg_answers_part_1
-  end
-
-  get '/rg_answers_part_2' do
-    haml :rg_answers_part_2
-  end
-
-  get '/event_tracker_part_1' do
-    haml :event_tracker_part_1
-  end
-
-  get '/event_tracker_part_2' do
-    haml :event_tracker_part_2
-  end
-
-  get '/rails_reviews_part_1' do
-    haml :rails_reviews_part_1
-  end
-
-  get '/rails_reviews_part_2' do
-    haml :rails_reviews_part_2
-  end
-
-  get '/short_url_part_1' do
-    haml :short_url_part_1
-  end
-
-  get '/upload_site' do
-    haml :upload_site
-  end
-
-  get '/hello_world' do
-    haml :hello_world
+  paths.each do |path|
+    get "/#{path}" do
+      haml path.to_sym
+    end
   end
 
   helpers do
