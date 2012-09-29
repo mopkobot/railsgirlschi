@@ -11,7 +11,7 @@
   code = <<-HEREDOC
     class AddressesController < ApplicationController
       def index
-        @address = Address.all
+        @addresses = Address.all
       end
   HEREDOC
 = tutorial_for("ruby","In <code>app/controllers/addresses_controller.rb</code>, add an <strong>index</strong> method and put all the addresses into a variable.", code, [*2..4])
@@ -28,6 +28,7 @@
   HEREDOC
 = tutorial_for("ruby","Create <code>app/views/addresses/index.html.erb</code>, add a hero-unit and a table around existing code.", code, [*1..22])
 
+= action_for("Visit <code>http://localhost:3000/addresses</code>", "After creating an index action, you should now be able to see a list of all the addresses.")
 
 
 
@@ -91,7 +92,7 @@
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/addresses/index.html.erb</code>, add a table showing the addresses.", code, [*1..22])
 
-= action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!")
+= action_for("Visit <code>http://localhost:3000/addresses/</code>", "Your site should be looking a little better now!")
 
 
 %h3 Feature 2.3 - Track how many people have used the URL
@@ -134,7 +135,7 @@
         redirect_to @address.location
       end
   HEREDOC
-= tutorial_for("ruby","Also in <code>app/controllers/addresses_controller.rb</code>, add an <strong>index</strong> method that we'll use to show.", code, [4, 5])
+= tutorial_for("ruby","Also in <code>app/controllers/addresses_controller.rb</code>, update the <strong>redirect_name_to_location</strong> method to also update the clicks count.", code, [4, 5])
 
 :ruby
   code = <<-HEREDOC
@@ -147,7 +148,7 @@
       <tbody>
       <% @addresses.each do |address| %>
         <tr>
-          <td><%= redirect_address_url(name: address.name) %></td>
+          <td><%= redirect_name_to_location_url(name: address.name) %></td>
           <td><%= address.location %></td>
           <td><%= address.clicks %></td>
         </tr>
