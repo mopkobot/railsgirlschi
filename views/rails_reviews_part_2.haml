@@ -1,8 +1,7 @@
-.alert.alert-error Work in Progress!
 .page-header
   %h2
     Rails Reviews - Part 2
-  %p Rails Reviews is the newest restaurant review site in the Chicago area! The site is going to have Restaurants and allow users to add reviews.
+  %p Rails Reviews is the newest restaurant review site in the Chicago area! This application allows users to review their favorite restaurants.
 
 %h3 User should be able to...
 %h3 Feature 2.1 - See a pretty site!
@@ -67,7 +66,7 @@
 
 :ruby
   code = <<-HEREDOC
-  rails generate resource Review description:string star:integer restaurant_id:integer
+  rails generate resource Review description:string stars:integer restaurant_id:integer
   HEREDOC
 = tutorial_for("plain","Create a Reviews resource", code)
 
@@ -77,7 +76,7 @@
     def change
       create_table :reviews do |t|
         t.string :description
-        t.boolean :star, :default => 0
+        t.boolean :stars, :default => 0
         t.integer :restaurant_id
 
         t.timestamps
@@ -116,7 +115,7 @@
 :ruby
   code = <<-HEREDOC
   class Review < ActiveRecord::Base
-    attr_accessible :description, :star, :restaurant_id
+    attr_accessible :description, :stars, :restaurant_id
 
     belongs_to :restaurant
   end
@@ -129,6 +128,7 @@
   restaurant = Restaurant.first
   review = restaurant.reviews.new
   review.description = "Wow, the Ruby cupcakes were amazing."
+  review.stars = 5
   review.save
   exit
   HEREDOC
@@ -136,13 +136,11 @@
 
 :ruby
   code = <<-HEREDOC
-  <ul>
   <% @restaurant.reviews.each do |review| %>
-    <li>
-      <%= review.description %> | <%= review.star %>
-    </li>
+    <hr />
+    This user gave: <%= review.stars %> Stars<br />
+    This user said: <%= review.description %>
   <% end %>
-  </ul>
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, add code to display the reviews for each restaurant", code)
 
@@ -172,60 +170,16 @@
   <p>Post your honest review about this Chicago Restaurant</p>
 
   <%= form_for [@restaurant, @restaurant.reviews.new]  do |form| %>
+    <%= form.label :description %>
     <%= form.text_field :description %>
+    <%= form.label :stars %>
+    <%= form.text_field :stars %>
     <%= form.submit %>
   <% end %>
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, add in code to display the web form to create reviews", code)
 
-%h3 Feature 2.4 - Rate Restaurants
-:ruby
-  code = <<-HEREDOC
-  class RestaurantController < ApplicationController
-    def star
-      @restaurant = Restaurant.find(params[:restaurant_id])
-      @review = Review.find(params[:id])
-      @review.star += 1
-      @review.save
-      redirect_to restaurant_url(@restaurant)
-    end
-  end
-  HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/reviews_controller.rb</code>, create an action for adding stars to reviews", code, [2,3,4,5,6,7,8])
-
-:ruby
-  code = <<-HEREDOC
-  resources :restaurants do
-    resources :reviews do
-      member do
-        post :star
-      end
-    end
-  end
-  HEREDOC
-= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for star action", code, [2, 3, 4, 5, 6])
-
-:ruby
-  code = <<-HEREDOC
-  rake routes
-  HEREDOC
-= tutorial_for("plain", "See which new route it created", code)
-.alert.alert-success Coaches, give a quick overview of the rake routes output
-
-:ruby
-  code = <<-HEREDOC
-  <ul>
-    <% @restaurant.reviews.each do |review| %>
-      <li>
-        <%= review.description %> | <%= review.star %>
-        <%= button_to "Add Star", star_restaurant_review_path(@restaurant.id, review.id) %>
-      </li>
-    <% end %>
-  </ul>
-  HEREDOC
-= tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, add a button that allows people to add stars to reviews", code, [5])
-
-%h3 Feature 2.5 - View an average of the restaurant reviews
+%h3 Feature 2.4 - View an average of the restaurant reviews
 :ruby
   code = <<-HEREDOC
   class Restaurant < ActiveRecord::Base
@@ -234,22 +188,25 @@
     has_many :reviews
 
     def average_stars
-      #pending
+      self.reviews.average(:stars)
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/restaurant.rb</code>, create a method to calcualte the average stars for each restaurant", code, [*5..6])
+= tutorial_for("ruby","Open <code>app/models/restaurant.rb</code>, create a method to calcualte the average stars for each restaurant", code, [*6..8])
 
 :ruby
   code = <<-HEREDOC
-  # TBD
+  <%= @restaurant.average_stars %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, display the average rating for each restaurant", code, [*1..17])
+= tutorial_for("ruby","Open <code>app/views/restaurants/show.html.erb</code>, display the average rating for each restaurant at the top", code, [*1..17])
+
+= action_for("Visit <code>http://localhost:3000</code>", "See the average stars on the restaurant page")
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:
   %ul
     %ol Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
-    %ol Extract duplicated logic in Reviews controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
+    %ol Try converting the number of stars into actual stars (ie. 4 Stars will show as '* * * *')
+    %ol Add limit to number of stars they can give on a restaurant (<a href="http://guides.rubyonrails.org/active_record_validations_callbacks.html#validation-helpers" target="new">Validation Helpers</a>).
     %ol Order the reviews by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
     %ol Also, try the suggestions at the end of Part 1 (<a href="/rails_reviews_part_1" target="new">Rails Reviews Part 1</a>).

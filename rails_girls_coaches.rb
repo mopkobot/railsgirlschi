@@ -16,7 +16,7 @@ class RailsGirlsCoaches < Sinatra::Base
     event_tracker_part_1
     event_tracker_part_2
     rails_reviews_part_1
-    rails_revies_part_2
+    rails_reviews_part_2
     short_url_part_1
     short_url_part_2
     upload_site

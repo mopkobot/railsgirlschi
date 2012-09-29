@@ -1,7 +1,7 @@
 .page-header
   %h2
     Rails Reviews - Part 1
-  %p Rails Reviews is an application that allows users to review their favorite restaurants.
+  %p Rails Reviews is the newest restaurant review site in the Chicago area! This application allows users to review their favorite restaurants.
 %h3 User should be able to...
 %h3 Feature 1.1 - View a list of their Restaurants
 :ruby
@@ -15,15 +15,10 @@
 = tutorial_for("plain", "Create a new Rails Project", code)
 .alert.alert-success Coaches, give quick explanation about what each command does.
 
-%div.tut
-  %span.label.label-success Action
-  Visit in your browser <code>http://localhost:3000</code>
-  .well This is the default Rails landing page.  Let's try removing it and see what happens...
+= action_for("Visit in your browser <code>http://localhost:3000</code>", "This is the default Rails landing page.  Let's try removing it and see what happens...")
 
-%div.tut
-  %span.label.label-success Action
-  Delete the file <code>public/index.html</code> and re-visit <code>http://localhost:3000</code>
-  .well Now what do you see?
+= action_for("Delete the file <code>public/index.html</code> and re-visit <code>http://localhost:3000</code>", "Now what do you see?")
+
 .alert.alert-success Coaches, explain why removing public created an error and how we are going to solve this by modifying rails routes.
 
 :ruby
@@ -72,10 +67,7 @@
   HEREDOC
 = tutorial_for("plain","Create some Restaurants", code)
 
-%div.tut
-  %span.label.label-success Action
-  Visit <code>http://localhost:3000</code>
-  .well You should now see your newly created Restaurant.  If you don't, please ask your coach for some help.
+= action_for("Visit <code>http://localhost:3000</code>", "You should now see your newly created Restaurant.  If you don't, please ask your coach for some help.")
 
 %h3 Feature 1.2 - Create Restaurants using a form on the site
 
@@ -174,10 +166,7 @@
 = tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Edit page for a Restaurant inside the @restaurants.each block", code, [3,4])
 
 
-%div.tut
-  %span.label.label-success Action
-  Visit <code>http://localhost:3000</code>
-  .well Click on the Edit link for a Restaurant.  You should be able to update your restaurant.  If you can't, please ask your coach for some help.
+= action_for("Visit <code>http://localhost:3000</code>", "Click on the Edit link for a Restaurant.  You should be able to update your restaurant.  If you can't, please ask your coach for some help.")
 
 %h3 Feature 1.4 - View each Restaurant separately on its own page
 
