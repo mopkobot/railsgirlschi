@@ -221,7 +221,7 @@
   code = <<-HEREDOC
   <% @event.participants.each do |participant| %>
     <li><%= participant.name %> is bringing <%= participant.guests %> guests<br />
-      Bringing a guest?  <%= button_to "Guest +1", add_guest_event_participant_path(@event.id, participant.id) %>
+      Bringing a guest?  <%= button_to "Guest +1", add_guest_event_path(@event.id, participant.id) %>
     </li>
   <% end %>
   HEREDOC
