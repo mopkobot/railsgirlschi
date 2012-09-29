@@ -103,7 +103,7 @@
       resources :participants
     end
 
-    root :to => 'participants#index'
+    root :to => 'events#index'
   end
   HEREDOC
 = tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the participants route under events", code, [*2..4])
