@@ -53,7 +53,7 @@
       <% @restaurants.each do |restaurant| %>
         <tr>
           <td><%= link_to restaurant.name, restaurant_path(restaurant) %></td>
-          <td><%= restaurant.reason %></td>
+          <td><%= restaurant.phone %></td>
           <td><%= link_to "Edit", edit_restaurant_path(restaurant) %> | <%= link_to 'Destroy', restaurant, method: :delete, data: { confirm: 'Are you sure?' } %></td>
         </tr>
       <% end %>
@@ -139,7 +139,7 @@
   <ul>
   <% @restaurant.reviews.each do |review| %>
     <li>
-      <%= review.description %> | <%= review.complete %>
+      <%= review.description %> | <%= review.star %>
     </li>
   <% end %>
   </ul>
@@ -218,7 +218,7 @@
     <% @restaurant.reviews.each do |review| %>
       <li>
         <%= review.description %> | <%= review.star %>
-        <%= button_to "Complete", star_restaurant_review_path(@restaurant.id, review.id) %>
+        <%= button_to "Add Star", star_restaurant_review_path(@restaurant.id, review.id) %>
       </li>
     <% end %>
   </ul>
