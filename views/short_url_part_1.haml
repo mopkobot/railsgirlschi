@@ -13,7 +13,9 @@
   rails server
   HEREDOC
 = tutorial_for("plain", "Create a new Rails Project", code)
-.alert.alert-success Coaches, give quick explanation about what each command does.
+.alert.alert-success
+  Coaches, give quick explanation about what each command does. Also explain at a high level how a URL shortener works
+  (from a technical perspective; i.e. you visit the short version, the server looks up the long version, and redirects there).
 
 
 :ruby
@@ -25,14 +27,14 @@
   address.save
   exit
   HEREDOC
-= tutorial_for("plain","Create some Lists", code)
+= tutorial_for("plain","Create your first 'short URL'", code)
 .alert.alert-success Coaches, explain how the console and the site work together.
 
 :ruby
   code = <<-HEREDOC
     ShortUrl::Application.routes.draw do
       resources :addresses
-      get '/s/:name' => "addresses#redirect_address", :as => :redirect_address
+      match '/s/:name' => "addresses#redirect_address", :as => :redirect_address
     end
   HEREDOC
 = tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route that will let us redirect the address name to its corresponding location", code, [3])
@@ -88,12 +90,12 @@ We'll do this in three steps:
   <h2>Create a shorter URL</h2>
   <%= form_for @address do |form| %>
     <div>
-      <%= form.label :name %><br />
+      <%= form.label :name %>
       <%= form.text_field :name %>
     </div>
 
     <div>
-      <%= form.label :location %><br />
+      <%= form.label :location, "Location - must start with http://" %>
       <%= form.text_field :location %>
     </div>
 
@@ -106,7 +108,7 @@ We'll do this in three steps:
 
 .alert.alert-success Coaches, explain the default routes for a resource.
 
-= action_for("Fill out the form and submit it.", "We need to do something with the form input.")
+= action_for("Fill out the form and submit it.", "Error! We need to do something with the form input.")
 
 
 %h4 2. Handle the form input
@@ -128,9 +130,14 @@ We'll do this in three steps:
   HEREDOC
 = tutorial_for("ruby","Open <code>app/controllers/addresses_controller.rb</code>, add the <strong>create</strong> action in the controller.", code, (5..12).to_a)
 
+.alert.alert-success Coaches, explain how form elements are mapped to the params hash.
+
 = action_for("Fill out the form again.", "Was your input saved to the database? How do you know?")
 
 %h4 3. Show the user the new short URL
+
+%p Now that we're saving the form input, we need to tell the user their URL was successful.
+
 
 :ruby
   code = <<-HEREDOC
@@ -156,13 +163,52 @@ We'll do this in three steps:
   HEREDOC
 = tutorial_for("ruby","Create a corresponding view, <code>app/views/addresses/show.html.erb</code>.", code, [10, 11, 12])
 
+.alert.alert-success Coaches, explain redirect_address_url and <code>rake routes</code>.
+
 = action_for("Fill out the form again.", "See the process work all the way through!")
+
+%h3 Feature 1.3 - Add some validations
+
+:ruby
+  code = <<-HEREDOC
+    class Address < ActiveRecord::Base
+      attr_accessible :location, :name
+
+      validates_uniqueness_of :name
+    end
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/addresses.rb</code>. Add a validation for the uniqueness of <strong>name</strong>.", code, [4])
+
+= action_for("Fill out the form again. Use a name you used before (like 'goog').")
+
+.alert.alert-success Coaches, explain what happens.
+
+%h3 Feature 1.3 - Show error messages when the validations fail
+
+:ruby
+  code = <<-HEREDOC
+    <h2>Create a shorter URL</h2>
+
+    <div style="background:red; color: white; font-weight: bold">
+      <% @address.errors.full_messages.each do |message| %>
+        <%= message %><br>
+      <% end %>
+    </div>
+
+    <%= form_for @address do |form| %>
+      <div>
+        <%= form.label :name %>
+        <%= form.text_field :name %>
+  HEREDOC
+= tutorial_for("ruby","Open <code>app/models/addresses.rb</code>. Add a validation for the uniqueness of <strong>name</strong>.", code, [*3..7])
+
+= action_for("Fill out the form again. Use a name you used before (like 'goog').")
+
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:
   %ul
     %li Redirect the site root to addresses#new
-    %li Prevent duplicate names
     %li Automatically generate a name
     %li Make sure the generated name is family friendly
     %li Reuse names for duplicate locations

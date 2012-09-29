@@ -53,7 +53,10 @@ class RailsGirlsCoaches < Sinatra::Base
   end
 
   helpers do
-    def action_for(action, desc)
+    def action_for(action, desc="")
+      well = ""
+      well = "<div class='well'>#{desc}</div>" unless desc.empty?
+
       html = <<-HEREDOC
       <div class="tut">
         <label>
@@ -61,7 +64,7 @@ class RailsGirlsCoaches < Sinatra::Base
 
         #{action}
         </label>
-        <div class="well">#{desc}</div>
+        #{well}
       </div>
       HEREDOC
     end
