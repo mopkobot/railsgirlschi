@@ -24,11 +24,16 @@
 :ruby
   code = <<-HEREDOC
     RailsReviews::Application.routes.draw do
+
       resources :restaurants
+
       root :to => 'restaurants#index'
-    end
+
+      # The priority is based upon order of creation:
+      # first created -> highest priority.
+      ...
   HEREDOC
-= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [4,5])
 
 
 :ruby
@@ -45,13 +50,13 @@
   code = <<-HEREDOC
   <h2>Restaurants</h2>
 
-  <% @restaurants.each do |restaurant| %>
-    <%= restaurant.name %> -
-    <%= restaurant.phone %>
+  <% @restaurants.each do |single_restaurant| %>
+    <%= single_restaurant.name %> -
+    <%= single_restaurant.phone %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/restaurants/index.html.erb</code>: Create an index view", code)
+= tutorial_for("ruby","Create <code>app/views/restaurants/index.html.erb</code>: Create an index view", code, [*1..7])
 
 = action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
 = action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'Restaurants' but no restaurants because you haven't created any yet.")
@@ -59,10 +64,10 @@
 :ruby
   code = <<-HEREDOC
   rails console
-  restaurant = Restaurant.new
-  restaurant.name = "Ruby Deli"
-  restaurant.phone = "3128573467"
-  restaurant.save
+  deli = Restaurant.new
+  deli.name = "Ruby Deli"
+  deli.phone = "3128573467"
+  deli.save
   exit
   HEREDOC
 = tutorial_for("plain","Create some Restaurants", code)
@@ -74,6 +79,10 @@
 :ruby
   code = <<-HEREDOC
   class RestaurantsController < ApplicationController
+    def index
+      @restaurants = Restaurant.all
+    end
+
     def new
       @restaurant = Restaurant.new
     end
@@ -88,7 +97,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*2..13])
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*5..17])
 
 :ruby
   code = <<-HEREDOC
@@ -107,7 +116,7 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/restaurants/new.html.erb</code>, create a form for users to create a new Restaurant", code)
+= tutorial_for("ruby","Create <code>app/views/restaurants/new.html.erb</code>, create a form for users to create a new Restaurant", code, [*1..14])
 
 = action_for("Visit <code>http://localhost:3000/restaurants/new</code>", "This is the new form you just created!  Try creating a few Restaurants from this web form.")
 
@@ -116,6 +125,23 @@
 :ruby
   code = <<-HEREDOC
   class RestaurantsController < ApplicationController
+    def index
+      @restaurants = Restaurant.all
+    end
+
+    def new
+      @restaurant = Restaurant.new
+    end
+
+    def create
+      @restaurant = Restaurant.new(params[:restaurant])
+      if @restaurant.save
+        redirect_to restaurants_url
+      else
+        render action: "new"
+      end
+    end
+
     def edit
       @restaurant = Restaurant.find(params[:id])
     end
@@ -131,7 +157,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*2..14])
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*18..31])
 
 :ruby
   code = <<-HEREDOC
@@ -151,19 +177,21 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/restaurants/edit.html.erb</code>, write html/erb for a form to edit a Restaurant", code)
+= tutorial_for("ruby","Create <code>app/views/restaurants/edit.html.erb</code>, write html/erb for a form to edit a Restaurant", code, [*1..15])
 
 
 :ruby
   code = <<-HEREDOC
-  <% @restaurants.each do |restaurant| %>
-    <%= restaurant.name %> -
-    <%= restaurant.phone %> |
-    <%= link_to "Edit", edit_restaurant_path(restaurant) %>
+  <h2>Restaurants</h2>
+
+  <% @restaurants.each do |single_restaurant| %>
+    <%= single_restaurant.name %> -
+    <%= single_restaurant.phone %> |
+    <%= link_to "Edit", edit_restaurant_path(single_restaurant) %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Edit page for a Restaurant inside the @restaurants.each block", code, [3,4])
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Edit page for a Restaurant inside the @restaurants.each block", code, [5,6])
 
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the Edit link for a Restaurant.  You should be able to update your restaurant.  If you can't, please ask your coach for some help.")
@@ -173,30 +201,63 @@
 :ruby
   code = <<-HEREDOC
   class RestaurantsController < ApplicationController
+    def index
+      @restaurants = Restaurant.all
+    end
+
+    def new
+      @restaurant = Restaurant.new
+    end
+
+    def create
+      @restaurant = Restaurant.new(params[:restaurant])
+      if @restaurant.save
+        redirect_to restaurants_url
+      else
+        render action: "new"
+      end
+    end
+
+    def edit
+      @restaurant = Restaurant.find(params[:id])
+    end
+
+    def update
+      @restaurant = Restaurant.find(params[:id])
+
+      if @restaurant.update_attributes(params[:restaurant])
+        redirect_to restaurants_path
+      else
+        render action: "edit"
+      end
+    end
+
     def show
       @restaurant = Restaurant.find(params[:id])
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add a show action.", code, [2,3,4])
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add a show action.", code, [*32..35])
 
 :ruby
   code = <<-HEREDOC
   <h2><%= @restaurant.name %></h2>
   <p><%= @restaurant.phone %></p>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/restaurants/show.html.erb</code>, write html/erb code to show Restaurant information.", code)
+= tutorial_for("ruby","Create <code>app/views/restaurants/show.html.erb</code>, write html/erb code to show Restaurant information.", code, [*1..2])
 
 :ruby
   code = <<-HEREDOC
-  <% @restaurants.each do |restaurant| %>
-    <%= link_to restaurant.name, restaurant_path(restaurant) %> -
-    <%= restaurant.phone %> |
-    <%= link_to "Edit", edit_restaurant_path(restaurant) %>
+  <h2>Restaurants</h2>
+
+  <% @restaurants.each do |single_restaurant| %>
+    <%= link_to single_restaurant.name, restaurant_path(single_restaurant) %> -
+    <%= single_restaurant.phone %> |
+    <%= link_to "Edit", edit_restaurant_path(single_restaurant) %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, change each Restaurant name into a link to its show page.", code, [2])
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, change each Restaurant name into a link to its show page.", code, [4])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Restaurant.  You should be able to see a page of just that Restaurant.")
 
@@ -205,6 +266,41 @@
 :ruby
   code = <<-HEREDOC
   class RestaurantsController < ApplicationController
+    def index
+      @restaurants = Restaurant.all
+    end
+
+    def new
+      @restaurant = Restaurant.new
+    end
+
+    def create
+      @restaurant = Restaurant.new(params[:restaurant])
+      if @restaurant.save
+        redirect_to restaurants_url
+      else
+        render action: "new"
+      end
+    end
+
+    def edit
+      @restaurant = Restaurant.find(params[:id])
+    end
+
+    def update
+      @restaurant = Restaurant.find(params[:id])
+
+      if @restaurant.update_attributes(params[:restaurant])
+        redirect_to restaurants_path
+      else
+        render action: "edit"
+      end
+    end
+
+    def show
+      @restaurant = Restaurant.find(params[:id])
+    end
+
     def destroy
       @restaurant = Restaurant.find(params[:id])
       @restaurant.destroy
@@ -212,19 +308,21 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add a destroy action.", code, [2,3,4, 5, 6])
+= tutorial_for("ruby","Open <code>app/controllers/restaurants_controller.rb</code>, add a destroy action.", code, [*36..41])
 
 :ruby
   code = <<-HEREDOC
-  <% @restaurants.each do |restaurant| %>
-    <%= link_to restaurant.name, restaurant_path(restaurant) %> -
-    <%= restaurant.phone %> |
-    <%= link_to "Edit", edit_restaurant_path(restaurant) %> |
-    <%= link_to 'Destroy', restaurant, method: :delete, data: { confirm: 'Are you sure?' } %>
+  <h2>Restaurants</h2>
+
+  <% @restaurants.each do |single_restaurant| %>
+    <%= link_to single_restaurant.name, restaurant_path(single_restaurant) %> -
+    <%= single_restaurant.phone %> |
+    <%= link_to "Edit", edit_restaurant_path(single_restaurant) %> |
+    <%= link_to 'Destroy', single_restaurant, method: :delete, data: { confirm: 'Are you sure?' } %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Destroy action for each restaurant", code, [4,5])
+= tutorial_for("ruby","Open <code>app/views/restaurants/index.html.erb</code>, add a link to the Destroy action for each restaurant", code, [6,7])
 
 
 

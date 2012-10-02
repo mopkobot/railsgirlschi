@@ -19,6 +19,33 @@
   %div
     %span.label.label-warning Text-Editor
     Code to write in your text-editor have yellow labels
+    %p 
+      %b Highlighted 
+      lines are the lines that we want you to create or modify
+    Example (adds the 'new' and 'create' blocks to the existing file):
+  :ruby
+    code = <<-HEREDOC
+    class ListsController < ApplicationController
+        def index
+            @lists = List.all
+        end
+
+        def new
+            @list = List.new
+        end
+
+        def create
+            @list = List.new(params[:list])
+            if @list.save
+                redirect_to lists_url
+            else
+                render action: "new"
+            end
+        end
+    end
+    HEREDOC
+  = tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*5..17])
+
   %div
     %span.label.label-success Action
     These are action items, such as visiting a page in your browser and clicking around

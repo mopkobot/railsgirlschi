@@ -13,8 +13,14 @@
       def index
         @addresses = Address.all
       end
+
+      def forward_user
+        @address = Address.find_by_name(params[:name])
+        redirect_to @address.location
+      end
+      ...
   HEREDOC
-= tutorial_for("ruby","In <code>app/controllers/addresses_controller.rb</code>, add an <strong>index</strong> method and put all the addresses into a variable.", code, [*2..4])
+= tutorial_for("ruby","In <code>app/controllers/addresses_controller.rb</code>, add an <strong>index</strong> method and put all the addresses into a variable.", code, [*2..5])
 
 :ruby
   code = <<-HEREDOC
@@ -23,7 +29,7 @@
       <%= forward_user_url(name: address.name) %> - <%= address.location %><br>
     <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/addresses/index.html.erb</code>, add a loop to show all the addresses.", code, [*1..22])
+= tutorial_for("ruby","Create <code>app/views/addresses/index.html.erb</code>, add a loop to show all the addresses.", code, [*1..4])
 
 = action_for("Visit <code>http://localhost:3000/addresses</code>", "After creating an index action, you should now be able to see a list of all the addresses.")
 
@@ -38,12 +44,14 @@
 
 :ruby
   code = <<-HEREDOC
+    ...
     group :assets do
       gem 'twitter-bootstrap-rails'
       gem 'sass-rails',   '~> 3.2.3'
       gem 'coffee-rails', '~> 3.2.1'
+      ...
   HEREDOC
-= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [3])
 
 :ruby
   code = <<-HEREDOC
@@ -56,6 +64,14 @@
 
 :ruby
   code = <<-HEREDOC
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>ShortURL</title>
+      <%= stylesheet_link_tag    "application", :media => "all" %>
+      <%= javascript_include_tag "application" %>
+      <%= csrf_meta_tags %>
+    </head>
     <body>
       <div class="hero-unit">
         <h1>Short URL</h1>
@@ -67,8 +83,9 @@
         <%= yield %>
       </div>
     </body>
+    </html>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container, and add a header.", code, [*2..8, 10])
+= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container, and add a header.", code, [*10..16, 18])
 
 
 :ruby
@@ -134,11 +151,14 @@
         @address.save
         redirect_to @address.location
       end
+      ...
   HEREDOC
 = tutorial_for("ruby","Open <code>app/controllers/addresses_controller.rb</code>, update the <strong>forward_user</strong> method to also update the clicks count.", code, [4, 5])
 
 :ruby
   code = <<-HEREDOC
+    <h2>Recently Shortened URLs</h2>
+
     <table class="table table-striped">
       <thead>
       <th>Short URL</th>
@@ -156,7 +176,7 @@
       </tbody>
     </table>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/addresses/index.html.erb</code>, add a column to the table to show the clicks.", code, [5, 12])
+= tutorial_for("ruby","Open <code>app/views/addresses/index.html.erb</code>, add a column to the table to show the clicks.", code, [7, 14])
 
 = action_for("Restart your server")
 
@@ -172,7 +192,8 @@
       get '/s/:name' => "addresses#forward_user", :as => :forward_user
 
       root :to => 'addresses#index'
-    end
+
+      ...
   HEREDOC
 = tutorial_for("ruby","Open <code>config/routes.rb</code> and map the site root to addresses#index.", code, [6])
 

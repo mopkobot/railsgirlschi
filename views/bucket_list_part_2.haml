@@ -11,11 +11,14 @@
 
 :ruby
   code = <<-HEREDOC
+  ...
   group :assets do
     gem 'twitter-bootstrap-rails'
-  end
+    gem 'sass-rails',   '~> 3.2.3'
+    gem 'coffee-rails', '~> 3.2.1'
+  ...
   HEREDOC
-= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [3])
 
 :ruby
   code = <<-HEREDOC
@@ -28,11 +31,24 @@
 
 :ruby
   code = <<-HEREDOC
-  <div class="container">
-    <%= yield %>
-  </div>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>BucketList</title>
+    <%= stylesheet_link_tag    "application", :media => "all" %>
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+   
+    <div class="container">
+      <%= yield %>
+    </div>
+   
+  </body>
+  </html>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [1, 3])
+= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [11, 13])
 
 :ruby
   code = <<-HEREDOC
@@ -59,7 +75,7 @@
     </tbody>
   </table>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a hero-unit and a table around existing code.", code, [*1..22])
+= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a hero-unit and a table around existing code. This will change every line of code", code, [*1..22])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Your site should be looking a little better now!  Checkout the Twitter Bootstrap documentation and continue dressing up your webapp.")
 %h3 Feature 2.2 - Add "steps" to each Bucket Lists
@@ -95,12 +111,18 @@
 :ruby
   code = <<-HEREDOC
   BucketList::Application.routes.draw do
+
     resources :lists do
       resources :steps
     end
-  end
+
+    root :to => 'lists#index'
+    
+    # The priority is based upon order of creation:
+    # first created -> highest priority.
+    ...
   HEREDOC
-= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the steps route under lists", code, [*2..4])
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the steps route under lists", code, [*3..5])
 
 :ruby
   code = <<-HEREDOC
@@ -125,27 +147,30 @@
 :ruby
   code = <<-HEREDOC
   rails console
-  list = List.first
-  step = list.steps.new
-  step.description = "write a step here"
-  step.save
+  the_first_list = List.first
+  my_step = the_first_list.steps.new
+  my_step.description = "write a step here"
+  my_step.save
   exit
   HEREDOC
 = tutorial_for("plain","Try adding some steps in rails console", code)
 
 :ruby
   code = <<-HEREDOC
+  <h2><%= @list.name %></h2>
+  <p><%= @list.reason %></p>
+
   <ul>
-  <% @list.steps.each do |step| %>
+  <% @list.steps.each do |single_step| %>
     <li>
-      <%= step.description %> | <%= step.complete %>
+      <%= single_step.description %> | <%= single_step.complete %>
     </li>
   <% end %>
   </ul>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add code to display the steps for each list", code)
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add code to display the steps for each list", code, [*4..10])
 
-= action_for("Visit <code>http://localhost:3000</code>", "See the steps underneath each list")
+= action_for("Visit <code>http://localhost:3000</code>", "See the newly created step when you look at the details of the first list")
 
 %h3 Feature 2.3 - Add "steps" from the website
 
@@ -167,6 +192,17 @@
 
 :ruby
   code = <<-HEREDOC
+  <h2><%= @list.name %></h2>
+  <p><%= @list.reason %></p>
+
+  <ul>
+  <% @list.steps.each do |single_step| %>
+    <li>
+      <%= single_step.description %> | <%= single_step.complete %>
+    </li>
+  <% end %>
+  </ul>
+
   <h2>Add Step</h2>
   <p>Baby steps will help you achieve your goal</p>
 
@@ -175,12 +211,22 @@
     <%= form.submit %>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add in code to display the web form to create steps", code)
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add in code to display the web form to create steps", code, [*11..18])
 
 %h3 Feature 2.4 - Mark steps as complete
 :ruby
   code = <<-HEREDOC
   class StepsController < ApplicationController
+    def create
+      @list = List.find(params[:list_id])
+      @step = @list.steps.new(params[:step])
+      if @step.save
+        redirect_to list_url(@list)
+      else
+        redirect_to list_url(@list)
+      end
+    end
+
     def complete
       @list = List.find(params[:list_id])
       @step = Step.find(params[:id])
@@ -190,19 +236,27 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/steps_controller.rb</code>, create an action for marking steps as complete", code, [2,3,4,5,6,7,8])
+= tutorial_for("ruby","Open <code>app/controllers/steps_controller.rb</code>, create an action for marking steps as complete", code, [*11..18])
 
 :ruby
   code = <<-HEREDOC
-  resources :lists do
-    resources :steps do
-      member do
-        post :complete
+  BucketList::Application.routes.draw do
+
+    resources :lists do
+      resources :steps do
+        member do
+          post :complete
+        end
       end
     end
-  end
+
+    root :to => 'lists#index'
+              
+    # The priority is based upon order of creation:
+    # first created -> highest priority.
+    ...
   HEREDOC
-= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for complete action", code, [2, 3, 4, 5, 6])
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for complete action", code, [*4..8])
 
 :ruby
   code = <<-HEREDOC
@@ -213,16 +267,27 @@
 
 :ruby
   code = <<-HEREDOC
+  <h2><%= @list.name %></h2>
+  <p><%= @list.reason %></p>
+
   <ul>
-    <% @list.steps.each do |step| %>
-      <li>
-        <%= step.description %> | <%= step.complete %>
-        <%= button_to "Complete", complete_list_step_path(@list.id, step.id) %>
-      </li>
-    <% end %>
+  <% @list.steps.each do |single_step| %>
+    <li>
+      <%= single_step.description %> | <%= single_step.complete %>
+      <%= button_to "Complete", complete_list_step_path(@list.id, single_step.id) %>
+    </li>
+  <% end %>
   </ul>
+
+  <h2>Add Step</h2>
+  <p>Baby steps will help you achieve your goal</p>
+
+  <%= form_for [@list, @list.steps.new]  do |form| %>
+    <%= form.text_field :description %>
+    <%= form.submit %>
+  <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add a complete button that goes to the complete route", code, [5])
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, add a complete button that goes to the complete route", code, [8])
 
 %h3 Feature 2.5 - View completed steps and incomplete steps in separate sections
 :ruby
@@ -239,25 +304,36 @@
 
 :ruby
   code = <<-HEREDOC
+  <h2><%= @list.name %></h2>
+  <p><%= @list.reason %></p>
+
   <h3>Steps I Need to Take</h3>
   <ul>
-    <% @list.steps.incomplete.each do |step| %>
+    <% @list.steps.incomplete.each do |single_step| %>
       <li>
-        <%= step.description %> | <%= step.complete %>
-        <%= button_to "Complete", complete_list_step_path(@list.id, step.id) %>
+        <%= single_step.description %> | <%= single_step.complete %>
+        <%= button_to "Complete", complete_list_step_path(@list.id, single_step.id) %>
       </li>
     <% end %>
   </ul>
 
-
   <h3>Steps I Completed!</h3>
   <ul>
-    <% @list.steps.complete.each do |step| %>
-      <li><%= step.description %>
+    <% @list.steps.complete.each do |single_step| %>
+      <li><%= single_step.description %></li>
     <% end %>
   </ul>
+
+  <h2>Add Step</h2>
+  <p>Baby steps will help you achieve your goal</p>
+
+  <%= form_for [@list, @list.steps.new]  do |form| %>
+    <%= form.text_field :description %>
+    <%= form.submit %>
+  <% end %>
+
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, using the named scopes, separate the steps into incomplete and complete", code, [*1..17])
+= tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, using the named scopes, separate the steps into incomplete and complete", code, [*4..19])
 
 .alert.alert-success 
   Coaches, if there is time left over in this session, try some of the following:

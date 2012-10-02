@@ -24,11 +24,16 @@
 :ruby
   code = <<-HEREDOC
     EventTracker::Application.routes.draw do
+
       resources :events
+
       root :to => 'events#index'
-    end
+
+      # The priority is based upon order of creation:
+      # first created -> highest priority.
+      ...
   HEREDOC
-= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [*4..5])
 
 
 :ruby
@@ -45,14 +50,14 @@
   code = <<-HEREDOC
   <h2>Events</h2>
 
-  <% @events.each do |event| %>
-    <%= event.name %> -
-    <%= event.description %><br />
-    <%= event.location %>
+  <% @events.each do |single_event| %>
+    <%= single_event.name %> -
+    <%= single_event.description %><br />
+    <%= single_event.location %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/events/index.html.erb</code>: Create an index view", code)
+= tutorial_for("ruby","Create <code>app/views/events/index.html.erb</code>: Create an index view", code, [*1..8])
 
 = action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
 = action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'Events' but no events because haven't created any yet.")
@@ -60,11 +65,11 @@
 :ruby
   code = <<-HEREDOC
   rails console
-  event = Event.new
-  event.name = "Rails Girls Chicago"
-  event.description = "Learn Rails in a fun and friendly atmosphere"
-  event.location = "ThoughtWorks offices, Chicago"
-  event.save
+  ev = Event.new
+  ev.name = "Rails Girls Chicago"
+  ev.description = "Learn Rails in a fun and friendly atmosphere"
+  ev.location = "ThoughtWorks offices, Chicago"
+  ev.save
   exit
   HEREDOC
 = tutorial_for("plain","Create some Events", code)
@@ -76,6 +81,10 @@
 :ruby
   code = <<-HEREDOC
   class EventsController < ApplicationController
+    def index
+     @events = Event.all
+    end
+
     def new
       @event = Event.new
     end
@@ -90,7 +99,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*2..13])
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*5..17])
 
 :ruby
   code = <<-HEREDOC
@@ -114,7 +123,7 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/events/new.html.erb</code>, create a form for users to create a new Event", code)
+= tutorial_for("ruby","Create <code>app/views/events/new.html.erb</code>, create a form for users to create a new Event", code, [*1..19])
 
 = action_for("Visit <code>http://localhost:3000/events/new</code>", "This is the new form you just created!  Try creating a few Events from this web form.")
 
@@ -123,6 +132,23 @@
 :ruby
   code = <<-HEREDOC
   class EventsController < ApplicationController
+    def index
+     @events = Event.all
+    end
+
+    def new
+      @event = Event.new
+    end
+
+    def create
+      @event = Event.new(params[:event])
+      if @event.save
+        redirect_to events_url
+      else
+        render action: "new"
+      end
+    end
+
     def edit
       @event = Event.find(params[:id])
     end
@@ -138,7 +164,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*2..14])
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*18..31])
 
 :ruby
   code = <<-HEREDOC
@@ -163,20 +189,22 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/events/edit.html.erb</code>, write html/erb for a form to edit a Event", code)
+= tutorial_for("ruby","Create <code>app/views/events/edit.html.erb</code>, write html/erb for a form to edit a Event", code, [*1..20])
 
 
 :ruby
   code = <<-HEREDOC
-  <% @events.each do |event| %>
-    <%= event.name %> -
-    <%= event.description %><br />
-    <%= event.location %>
-    <%= link_to "Edit", edit_event_path(event) %>
+  <h2>Events</h2>
+
+  <% @events.each do |single_event| %>
+    <%= single_event.name %> -
+    <%= single_event.description %><br />
+    <%= single_event.location %>
+    <%= link_to "Edit", edit_event_path(single_event) %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, add a link to the Edit page for a Event inside the @events.each block", code, [5])
+= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, add a link to the Edit page for a Event inside the @events.each block", code, [7])
 
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the Edit link for a Event.  You should be able to update your event.  If you can't, please ask your coach for some help.")
@@ -186,12 +214,43 @@
 :ruby
   code = <<-HEREDOC
   class EventsController < ApplicationController
+    def index
+     @events = Event.all
+    end
+
+    def new
+      @event = Event.new
+    end
+
+    def create
+      @event = Event.new(params[:event])
+      if @event.save
+        redirect_to events_url
+      else
+        render action: "new"
+      end
+    end
+
+    def edit
+      @event = Event.find(params[:id])
+    end
+
+    def update
+      @event = Event.find(params[:id])
+
+      if @event.update_attributes(params[:event])
+        redirect_to events_path
+      else
+        render action: "edit"
+      end
+    end
+
     def show
       @event = Event.find(params[:id])
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add a show action.", code, [2,3,4])
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add a show action.", code, [*32..35])
 
 :ruby
   code = <<-HEREDOC
@@ -199,19 +258,21 @@
   <h3><%= @event.description %></h3>
   <p><%= @event.location %></p>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/events/show.html.erb</code>, write html/erb code to show Event information.", code)
+= tutorial_for("ruby","Create <code>app/views/events/show.html.erb</code>, write html/erb code to show Event information.", code, [*1..3])
 
 :ruby
   code = <<-HEREDOC
-  <% @events.each do |event| %>
-    <%= link_to event.name, event_path(event) %> -
-    <%= event.description %><br />
-    <%= event.location %>
-    <%= link_to "Edit", edit_event_path(event) %>
+  <h2>Events</h2>
+
+  <% @events.each do |single_event| %>
+    <%= link_to single_event.name, event_path(single_event) %> -
+    <%= single_event.description %><br />
+    <%= single_event.location %>
+    <%= link_to "Edit", edit_event_path(single_event) %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, change each Event name into a link to its show page.", code, [2])
+= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, change each Event name into a link to its show page.", code, [4])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Event.  You should be able to see a page of just that Event.")
 
@@ -220,6 +281,41 @@
 :ruby
   code = <<-HEREDOC
   class EventsController < ApplicationController
+    def index
+     @events = Event.all
+    end
+
+    def new
+      @event = Event.new
+    end
+
+    def create
+      @event = Event.new(params[:event])
+      if @event.save
+        redirect_to events_url
+      else
+        render action: "new"
+      end
+    end
+
+    def edit
+      @event = Event.find(params[:id])
+    end
+
+    def update
+      @event = Event.find(params[:id])
+
+      if @event.update_attributes(params[:event])
+        redirect_to events_path
+      else
+        render action: "edit"
+      end
+    end
+
+    def show
+      @event = Event.find(params[:id])
+    end
+
     def destroy
       @event = Event.find(params[:id])
       @event.destroy
@@ -227,20 +323,22 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add a destroy action.", code, [2,3,4, 5, 6])
+= tutorial_for("ruby","Open <code>app/controllers/events_controller.rb</code>, add a destroy action.", code, [*36..41])
 
 :ruby
   code = <<-HEREDOC
-  <% @events.each do |event| %>
-    <%= link_to event.name, event_path(event) %> -
-    <%= event.description %><br />
-    <%= event.location %>
-    <%= link_to "Edit", edit_event_path(event) %>
-    <%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %>
+  <h2>Events</h2>
+
+  <% @events.each do |single_event| %>
+    <%= link_to single_event.name, event_path(single_event) %> -
+    <%= single_event.description %><br />
+    <%= single_event.location %>
+    <%= link_to "Edit", edit_event_path(single_event) %>
+    <%= link_to 'Destroy', single_event, method: :delete, data: { confirm: 'Are you sure?' } %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, add a link to the Destroy action for each event", code, [6])
+= tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, add a link to the Destroy action for each event", code, [8])
 
 
 

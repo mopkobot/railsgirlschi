@@ -25,11 +25,16 @@
 :ruby
   code = <<-HEREDOC
     RgAnswers::Application.routes.draw do
+
       resources :questions
+
       root :to => 'questions#index'
-    end
+
+      # The priority is based upon order of creation:
+      # first created -> highest priority.
+      ...
   HEREDOC
-= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [5])
 
 
 :ruby
@@ -46,13 +51,13 @@
   code = <<-HEREDOC
   <h2>RG! Questions</h2>
 
-  <% @questions.each do |question| %>
-    <strong><%= question.name %></strong><br />
-    <%= question.reason %><br />
+  <% @questions.each do |single_question| %>
+    <strong><%= single_question.name %></strong><br />
+    <%= single_question.reason %><br />
     <hr>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/questions/index.html.erb</code>: Create an index view", code)
+= tutorial_for("ruby","Create <code>app/views/questions/index.html.erb</code>: Create an index view", code, [*1..7])
 
 = action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
 = action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'RG! Questions' but no questions because haven't created any yet.")
@@ -60,10 +65,10 @@
 :ruby
   code = <<-HEREDOC
   rails console
-  question = Question.new
-  question.name = "What's the object-oriented way of becoming wealthy?"
-  question.reason = "Hi all, I need some ideas for earning money. Got any tips anyone?"
-  question.save
+  q = Question.new
+  q.name = "What's the object-oriented way of becoming wealthy?"
+  q.reason = "Hi all, I need some ideas for earning money. Got any tips anyone?"
+  q.save
   exit
   HEREDOC
 = tutorial_for("plain","Create some Questions", code)
@@ -75,6 +80,10 @@
 :ruby
   code = <<-HEREDOC
   class QuestionsController < ApplicationController
+    def index
+     @questions = Question.all
+    end
+
     def new
       @question = Question.new
     end
@@ -89,7 +98,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*2..13])
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*5..17])
 
 :ruby
   code = <<-HEREDOC
@@ -106,7 +115,7 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/questions/new.html.erb</code>, create a form for users to create a new Question", code)
+= tutorial_for("ruby","Create <code>app/views/questions/new.html.erb</code>, create a form for users to create a new Question", code, [*1..12])
 
 = action_for("Visit <code>http://localhost:3000/questions/new</code>", "This is the new form you just created!  Try creating a few Questions from this web form.")
 
@@ -115,6 +124,23 @@
 :ruby
   code = <<-HEREDOC
   class QuestionsController < ApplicationController
+    def index
+     @questions = Question.all
+    end
+
+    def new
+      @question = Question.new
+    end
+
+    def create
+      @question = Question.new(params[:question])
+      if @question.save
+        redirect_to questions_url
+      else
+        render action: "new"
+      end
+    end
+
     def edit
       @question = Question.find(params[:id])
     end
@@ -130,7 +156,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Create <code>app/controllers/questions_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*2..14])
+= tutorial_for("ruby","Create <code>app/controllers/questions_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*18..31])
 
 :ruby
   code = <<-HEREDOC
@@ -150,22 +176,21 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/questions/edit.html.erb</code>, write html/erb for a form to edit a Question", code)
+= tutorial_for("ruby","Create <code>app/views/questions/edit.html.erb</code>, write html/erb for a form to edit a Question", code, [*1..15])
 
 
 :ruby
   code = <<-HEREDOC
   <h2>RG! Questions</h2>
 
-  <% @questions.each do |question| %>
-    <strong><%= question.name %></strong><br />
-    <%= question.reason %><br />
-    <%= link_to "Edit", edit_question_path(question) %>
+  <% @questions.each do |single_question| %>
+    <strong><%= single_question.name %></strong><br />
+    <%= single_question.reason %><br />
+    <%= link_to "Edit", edit_question_path(single_question) %>
     <hr>
   <% end %>
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/questions/index.html.erb</code>, add a link to the Edit page for a Question inside the @questions.each block", code, [6])
-
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the Edit link for a Question.  You should be able to update your question.  If you can't, please ask your coach for some help.")
 
@@ -174,28 +199,59 @@
 :ruby
   code = <<-HEREDOC
   class QuestionsController < ApplicationController
+    def index
+     @questions = Question.all
+    end
+
+    def new
+      @question = Question.new
+    end
+
+    def create
+      @question = Question.new(params[:question])
+      if @question.save
+        redirect_to questions_url
+      else
+        render action: "new"
+      end
+    end
+
+    def edit
+      @question = Question.find(params[:id])
+    end
+
+    def update
+      @question = Question.find(params[:id])
+
+      if @question.update_attributes(params[:question])
+        redirect_to questions_path
+      else
+        render action: "edit"
+      end
+    end
+
     def show
       @question = Question.find(params[:id])
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a show action.", code, [*2..4])
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a show action.", code, [*32..35])
 
 :ruby
   code = <<-HEREDOC
   <h2><%= @question.name %></h2>
   <p><%= @question.reason %></p>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/questions/show.html.erb</code>, write html/erb code to show Question information.", code)
+= tutorial_for("ruby","Create <code>app/views/questions/show.html.erb</code>, write html/erb code to show Question information.", code, [*1..2])
 
 :ruby
   code = <<-HEREDOC
   <h2>RG! Questions</h2>
 
-  <% @questions.each do |question| %>
-    <strong><%= link_to question.name, question_path(question) %></strong><br />
-    <%= question.reason %><br />
-    <%= link_to "Edit", edit_question_path(question) %>
+  <% @questions.each do |single_question| %>
+    <strong><%= link_to single_question.name, question_path(single_question) %></strong><br />
+    <%= single_question.reason %><br />
+    <%= link_to "Edit", edit_question_path(single_question) %>
     <hr>
   <% end %>
   HEREDOC
@@ -208,6 +264,41 @@
 :ruby
   code = <<-HEREDOC
   class QuestionsController < ApplicationController
+    def index
+     @questions = Question.all
+    end
+
+    def new
+      @question = Question.new
+    end
+
+    def create
+      @question = Question.new(params[:question])
+      if @question.save
+        redirect_to questions_url
+      else
+        render action: "new"
+      end
+    end
+
+    def edit
+      @question = Question.find(params[:id])
+    end
+
+    def update
+      @question = Question.find(params[:id])
+
+      if @question.update_attributes(params[:question])
+        redirect_to questions_path
+      else
+        render action: "edit"
+      end
+    end
+
+    def show
+      @question = Question.find(params[:id])
+    end
+
     def destroy
       @question = Question.find(params[:id])
       @question.destroy
@@ -215,17 +306,17 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a destroy action.", code, [*2..6])
+= tutorial_for("ruby","Open <code>app/controllers/questions_controller.rb</code>, add a destroy action.", code, [*36..41])
 
 :ruby
   code = <<-HEREDOC
   <h2>RG! Questions</h2>
 
-  <% @questions.each do |question| %>
-    <strong><%= link_to question.name, question_path(question) %></strong><br />
-    <%= question.reason %><br />
-    <%= link_to "Edit", edit_question_path(question) %>
-    <%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %><br />
+  <% @questions.each do |single_question| %>
+    <strong><%= link_to single_question.name, question_path(single_question) %></strong><br />
+    <%= single_question.reason %><br />
+    <%= link_to "Edit", edit_question_path(single_question) %>
+    <%= link_to 'Destroy', single_question, method: :delete, data: { confirm: 'Are you sure?' } %><br />
     <hr>
   <% end %>
   HEREDOC

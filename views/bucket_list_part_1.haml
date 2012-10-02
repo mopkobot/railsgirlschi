@@ -24,11 +24,16 @@
 :ruby
   code = <<-HEREDOC
     BucketList::Application.routes.draw do
+
       resources :lists
+
       root :to => 'lists#index'
-    end
+
+      # The priority is based upon order of creation:
+      # first created -> highest priority.
+      ...
   HEREDOC
-= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [3])
+= tutorial_for("ruby", "Open <code>config/routes.rb</code>: Create a route to the index page", code, [5])
 
 
 :ruby
@@ -45,13 +50,13 @@
   code = <<-HEREDOC
   <h2>Bucket Lists</h2>
 
-  <% @lists.each do |list| %>
-    <%= list.name %> -
-    <%= list.reason %>
+  <% @lists.each do |single__list| %>
+    <%= single_list.name %> -
+    <%= single_list.reason %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/lists/index.html.erb</code>: Create an index view", code)
+= tutorial_for("ruby","Create <code>app/views/lists/index.html.erb</code>: Create an index view", code, [*1..7])
 
 = action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
 = action_for("Visit <code>http://localhost:3000</code>", "Try visiting the page again.  It should only have the text 'Bucket Lists' but no lists because haven't created any yet.")
@@ -59,10 +64,10 @@
 :ruby
   code = <<-HEREDOC
   rails console
-  list = List.new
-  list.name = "Learn Ruby"
-  list.reason = "I want to create cool webapps"
-  list.save
+  x = List.new
+  x.name = "Learn Ruby"
+  x.reason = "I want to create cool webapps"
+  x.save
   exit
   HEREDOC
 = tutorial_for("plain","Create some Lists", code)
@@ -74,6 +79,10 @@
 :ruby
   code = <<-HEREDOC
   class ListsController < ApplicationController
+    def index
+     @lists = List.all
+    end
+
     def new
       @list = List.new
     end
@@ -88,7 +97,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*2..13])
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add the <strong>new</strong> and <strong>create</strong> actions in the controller.", code, [*5..17])
 
 :ruby
   code = <<-HEREDOC
@@ -107,7 +116,7 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/lists/new.html.erb</code>, create a form for users to create a new List", code)
+= tutorial_for("ruby","Create <code>app/views/lists/new.html.erb</code>, create a form for users to create a new List", code, [*1..14])
 
 = action_for("Visit <code>http://localhost:3000/lists/new</code>", "This is the new form you just created!  Try creating a few Lists from this web form.")
 
@@ -116,6 +125,23 @@
 :ruby
   code = <<-HEREDOC
   class ListsController < ApplicationController
+    def index
+     @lists = List.all
+    end
+
+    def new
+      @list = List.new
+    end
+
+    def create
+      @list = List.new(params[:list])
+      if @list.save
+        redirect_to lists_url
+      else
+        render action: "new"
+      end
+    end
+
     def edit
       @list = List.find(params[:id])
     end
@@ -131,7 +157,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*2..14])
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add an <strong>edit</strong> and <strong>update</strong> action.", code, [*18..31])
 
 :ruby
   code = <<-HEREDOC
@@ -151,19 +177,21 @@
     <p><%= form.submit %></p>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/lists/edit.html.erb</code>, write html/erb for a form to edit a List", code)
+= tutorial_for("ruby","Create <code>app/views/lists/edit.html.erb</code>, write html/erb for a form to edit a List", code, [*1..15])
 
 
 :ruby
   code = <<-HEREDOC
-  <% @lists.each do |list| %>
-    <%= list.name %> -
-    <%= list.reason %> |
-    <%= link_to "Edit", edit_list_path(list) %>
+  <h2>Bucket Lists</h2>
+
+  <% @lists.each do |single_list| %>
+    <%= single_list.name %> -
+    <%= single_list.reason %> |
+    <%= link_to "Edit", edit_list_path(single_list) %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a link to the Edit page for a List inside the @lists.each block", code, [4])
+= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a link to the Edit page for a List inside the @lists.each block", code, [6])
 
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the Edit link for a Bucket List.  You should be able to update your list.  If you can't, please ask your coach for some help.")
@@ -173,30 +201,63 @@
 :ruby
   code = <<-HEREDOC
   class ListsController < ApplicationController
+    def index
+     @lists = List.all
+    end
+
+    def new
+      @list = List.new
+    end
+
+    def create
+      @list = List.new(params[:list])
+      if @list.save
+        redirect_to lists_url
+      else
+        render action: "new"
+      end
+    end
+
+    def edit
+      @list = List.find(params[:id])
+    end
+
+    def update
+      @list = List.find(params[:id])
+
+      if @list.update_attributes(params[:list])
+        redirect_to lists_path
+      else
+        render action: "edit"
+      end
+    end
+
     def show
       @list = List.find(params[:id])
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add a show action.", code, [2,3,4])
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add a show action.", code, [*33..35])
 
 :ruby
   code = <<-HEREDOC
   <h2><%= @list.name %></h2>
   <p><%= @list.reason %></p>
   HEREDOC
-= tutorial_for("ruby","Create <code>app/views/lists/show.html.erb</code>, write html/erb code to show List information.", code)
+= tutorial_for("ruby","Create <code>app/views/lists/show.html.erb</code>, write html/erb code to show List information.", code, [*1..2])
 
 :ruby
   code = <<-HEREDOC
-  <% @lists.each do |list| %>
-    <%= link_to list.name, list_path(list) %> -
-    <%= list.reason %> |
-    <%= link_to "Edit", edit_list_path(list) %>
+  <h2>Bucket Lists</h2>
+
+  <% @lists.each do |single_list| %>
+    <%= link_to single_list.name, list_path(single_list) %> -
+    <%= single_list.reason %> |
+    <%= link_to "Edit", edit_list_path(single_list) %>
     <br />
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, change each List name into a link to its show page.", code, [2])
+= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, change each List name into a link to its show page.", code, [4])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Click on the name of an individual Bucket List.  You should be able to see a page of just that Bucket List.")
 
@@ -205,6 +266,41 @@
 :ruby
   code = <<-HEREDOC
   class ListsController < ApplicationController
+    def index
+     @lists = List.all
+    end
+
+    def new
+      @list = List.new
+    end
+
+    def create
+      @list = List.new(params[:list])
+      if @list.save
+        redirect_to lists_url
+      else
+        render action: "new"
+      end
+    end
+
+    def edit
+      @list = List.find(params[:id])
+    end
+
+    def update
+      @list = List.find(params[:id])
+
+      if @list.update_attributes(params[:list])
+        redirect_to lists_path
+      else
+        render action: "edit"
+      end
+    end
+
+    def show
+      @list = List.find(params[:id])
+    end
+
     def destroy
       @list = List.find(params[:id])
       @list.destroy
@@ -212,19 +308,20 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add a destroy action.", code, [2,3,4, 5, 6])
+= tutorial_for("ruby","Open <code>app/controllers/lists_controller.rb</code>, add a destroy action.", code, [*36..41])
 
 :ruby
   code = <<-HEREDOC
-  <% @lists.each do |list| %>
-    <%= link_to list.name, list_path(list) %> -
-    <%= list.reason %> |
-    <%= link_to "Edit", edit_list_path(list) %> |
-    <%= link_to 'Destroy', list, method: :delete, data: { confirm: 'Are you sure?' } %>
+  <h2>Bucket Lists</h2>
+
+  <% @lists.each do |single_list| %>
+    <%= link_to single_list.name, list_path(single_list) %> -
+    <%= single_list.reason %> |
+    <%= link_to "Edit", edit_list_path(single_list) %>
+    <%= link_to 'Destroy', single_list, method: :delete, data: { confirm: 'Are you sure?' } %>
     <br />
-  <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a link to the Destroy action for each list", code, [5])
+= tutorial_for("ruby","Open <code>app/views/lists/index.html.erb</code>, add a link to the Destroy action for each list", code, [7])
 
 
 

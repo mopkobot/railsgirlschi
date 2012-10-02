@@ -11,11 +11,14 @@
 
 :ruby
   code = <<-HEREDOC
+  ...
   group :assets do
     gem 'twitter-bootstrap-rails'
-  end
+    gem 'sass-rails',   '~> 3.2.3'
+    gem 'coffee-rails', '~> 3.2.1'
+  ...
   HEREDOC
-= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [2])
+= tutorial_for("ruby","Open <code>Gemfile</code>, add the twitter-bootstrap-rails gem in the assets group", code, [3])
 
 :ruby
   code = <<-HEREDOC
@@ -28,11 +31,24 @@
 
 :ruby
   code = <<-HEREDOC
-  <div class="container">
-    <%= yield %>
-  </div>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>RG Answers</title>
+    <%= stylesheet_link_tag    "application", :media => "all" %>
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+   
+    <div class="container">
+      <%= yield %>
+    </div>
+   
+  </body>
+  </html>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [1, 3])
+= tutorial_for("ruby","Open <code>app/views/layouts/application.html.erb</code>, place the yield inside a container.", code, [11, 13])
 
 :ruby
   code = <<-HEREDOC
@@ -48,15 +64,15 @@
       <th>Actions</td>
     </thead>
     <tbody>
-      <% @questions.each do |question| %>
+      <% @questions.each do |single_question| %>
         <tr>
           <td>
-            <strong><%= link_to question.name, question_path(question) %></strong><br />
-            <%= question.reason %>
+            <strong><%= link_to single_question.name, question_path(single_question) %></strong><br />
+            <%= single_question.reason %>
           </td>
           <td>
-            <%= link_to "Edit", edit_question_path(question) %>
-            <%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %>
+            <%= link_to "Edit", edit_question_path(single_question) %>
+            <%= link_to 'Destroy', single_question, method: :delete, data: { confirm: 'Are you sure?' } %>
           </td>
         </tr>
       <% end %>
@@ -100,14 +116,15 @@
 :ruby
   code = <<-HEREDOC
   RgAnswers::Application.routes.draw do
+
     resources :questions do
       resources :answers
     end
 
     root :to => 'questions#index'
-  end
+    ...
   HEREDOC
-= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the answers route under questions", code, [*2..4])
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, nest the answers route under questions", code, [*3..5])
 
 :ruby
   code = <<-HEREDOC
@@ -132,25 +149,28 @@
 :ruby
   code = <<-HEREDOC
   rails console
-  question = Question.first
-  answer = question.answers.new
-  answer.description = "write a answer here"
-  answer.save
+  q = Question.first
+  my_answer = q.answers.new
+  my_answer.description = "write a answer here"
+  my_answer.save
   exit
   HEREDOC
 = tutorial_for("plain","Try adding some answers in rails console", code)
 
 :ruby
   code = <<-HEREDOC
-  <% @question.answers.each do |answer| %>
-    <strong>This answer has <%= answer.votes %> votes.</strong><br />
-    <p><%= answer.description %></p>
+  <h2><%= @question.name %></h2>
+  <p><%= @question.reason %></p>
+
+  <% @question.answers.each do |single_answer| %>
+    <strong>This answer has <%= single_answer.votes %> votes.</strong><br />
+    <p><%= single_answer.description %></p>
     <hr>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add code to display the answers for each question at the bottom", code)
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add code to display the answers for each question at the bottom", code, [*3..8])
 
-= action_for("Visit <code>http://localhost:3000</code>", "See the answers underneath each question")
+= action_for("Visit <code>http://localhost:3000</code>", "See the newly created answers when you examine a question's details")
 
 %h3 Feature 2.3 - Add "answers" from the website
 
@@ -172,6 +192,15 @@
 
 :ruby
   code = <<-HEREDOC
+  <h2><%= @question.name %></h2>
+  <p><%= @question.reason %></p>
+
+  <% @question.answers.each do |single_answer| %>
+    <strong>This answer has <%= single_answer.votes %> votes.</strong><br />
+    <p><%= single_answer.description %></p>
+    <hr>
+  <% end %>
+
   <h2>Add Answer</h2>
 
   <%= form_for [@question, @question.answers.new]  do |form| %>
@@ -179,7 +208,7 @@
     <%= form.submit %>
   <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add in code to display the web form to create answers at the bottom", code)
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add in code to display the web form to create answers at the bottom", code, [*9..15])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Create some answers to your questions using the web form.")
 
@@ -187,6 +216,16 @@
 :ruby
   code = <<-HEREDOC
   class AnswersController < ApplicationController
+    def create
+      @question = Question.find(params[:question_id])
+      @answer = @question.answers.new(params[:answer])
+      if @answer.save
+        redirect_to question_url(@question)
+      else
+        redirect_to question_url(@question)
+      end
+    end
+
     def vote
       @question = Question.find(params[:question_id])
       @answer = Answer.find(params[:id])
@@ -196,19 +235,24 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/controllers/answers_controller.rb</code>, create an action for voting for answers", code, [*2..8])
+= tutorial_for("ruby","Open <code>app/controllers/answers_controller.rb</code>, create an action for voting for answers", code, [*11..18])
 
 :ruby
   code = <<-HEREDOC
-  resources :questions do
-    resources :answers do
-      member do
-        post :vote
+  RgAnswers::Application.routes.draw do
+
+    resources :questions do
+      resources :answers do
+        member do
+          post :vote
+        end
       end
     end
-  end
+
+    root :to => 'questions#index'
+    ...
   HEREDOC
-= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for vote action", code, [*2..6])
+= tutorial_for("ruby","Open <code>config/routes.rb</code>, modify the routes to create a member route for vote action", code, [*4..8])
 
 :ruby
   code = <<-HEREDOC
@@ -219,14 +263,24 @@
 
 :ruby
   code = <<-HEREDOC
-  <% @question.answers.by_votes.each do |answer| %>
-    <strong>This answer has <%= answer.votes %> votes.</strong><br />
-    Like this answer?  <%= button_to "Vote +1", vote_question_answer_path(@question.id, answer.id) %>
-    <p><%= answer.description %></p>
+  <h2><%= @question.name %></h2>
+  <p><%= @question.reason %></p>
+
+  <% @question.answers.each do |single_answer| %>
+    <strong>This answer has <%= single_answer.votes %> votes.</strong><br />
+    Like this answer?  <%= button_to "Vote +1", vote_question_answer_path(@question.id, single_answer.id) %>
+    <p><%= single_answer.description %></p>
     <hr>
   <% end %>
+
+  <h2>Add Answer</h2>
+
+  <%= form_for [@question, @question.answers.new]  do |form| %>
+    <%= form.text_field :description %>
+    <%= form.submit %>
+  <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add a vote button that goes to the vote route", code, [3])
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, add a vote button that goes to the vote route", code, [6])
 
 = action_for("Restart the Rails Server", "Since we modified the routes, we have to restart the server.")
 = action_for("Visit <code>http://localhost:3000</code>", "Visit a Question page.  Try voting on some answers and see the vote count go up.")
@@ -242,18 +296,28 @@
     scope :by_votes, :order => "votes DESC"
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/answer.rb</code>, add a named scope for sorting answers by votes", code, [6])
+= tutorial_for("ruby","Open <code>app/models/answer.rb</code>, add a named scope for sorting answers by votes", code, [5,6])
 
 :ruby
   code = <<-HEREDOC
-  <% @question.answers.by_votes.each do |answer| %>
-    <strong>This answer has <%= answer.votes %> votes.</strong><br />
-    Like this answer?  <%= button_to "Vote +1", vote_question_answer_path(@question.id, answer.id) %>
-    <p><%= answer.description %></p>
+  <h2><%= @question.name %></h2>
+  <p><%= @question.reason %></p>
+
+  <% @question.answers.by_votes.each do |single_answer| %>
+    <strong>This answer has <%= single_answer.votes %> votes.</strong><br />
+    Like this answer?  <%= button_to "Vote +1", vote_question_answer_path(@question.id, single_answer.id) %>
+    <p><%= single_answer.description %></p>
     <hr>
   <% end %>
+
+  <h2>Add Answer</h2>
+
+  <%= form_for [@question, @question.answers.new]  do |form| %>
+    <%= form.text_field :description %>
+    <%= form.submit %>
+  <% end %>
   HEREDOC
-= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, using the named scopes, display answers sorted by most votes first", code, [1])
+= tutorial_for("ruby","Open <code>app/views/questions/show.html.erb</code>, using the named scopes, display answers sorted by most votes first", code, [4])
 
 = action_for("Visit <code>http://localhost:3000</code>", "Visit a Question page.  Try voting on some answers and see the order of the answers change appropriately.")
 
@@ -275,7 +339,7 @@
     end
   end
   HEREDOC
-= tutorial_for("ruby","Open <code>app/models/question.rb</code>, add a method to find the top answer", code, [*6..13])
+= tutorial_for("ruby","Open <code>app/models/question.rb</code>, add a method to find the top answer", code, [*5..13])
 
 :ruby
   code = <<-HEREDOC
@@ -291,16 +355,16 @@
       <th>Actions</td>
     </thead>
     <tbody>
-      <% @questions.each do |question| %>
+      <% @questions.each do |single_question| %>
         <tr>
           <td>
-            <strong><%= link_to question.name, question_path(question) %></strong><br />
-            <%= question.reason %><br />
-            <strong>Top Answer:</strong> <%= question.top_answer %>
+            <strong><%= link_to single_question.name, question_path(single_question) %></strong><br />
+            <%= single_question.reason %><br />
+            <strong>Top Answer:</strong> <%= single_question.top_answer %>
           </td>
           <td>
-            <%= link_to "Edit", edit_question_path(question) %>
-            <%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %>
+            <%= link_to "Edit", edit_question_path(single_question) %>
+            <%= link_to 'Destroy', single_question, method: :delete, data: { confirm: 'Are you sure?' } %>
           </td> 
         </tr>
       <% end %>
