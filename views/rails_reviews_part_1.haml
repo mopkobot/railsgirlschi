@@ -3,10 +3,18 @@
     Rails Reviews - Part 1
   %p Rails Reviews is the newest restaurant review site in the Chicago area! This application allows users to review their favorite restaurants.
 %h3 User should be able to...
+%h3 Feature 1.0 - Verify versions
+:ruby
+   code = <<-HEREDOC
+   ruby -v
+   rails -v
+   HEREDOC
+= tutorial_for("plain", "Check that ruby = 1.9.3 and rails = 3.2.15", code)
+.alert.alert-success Consider using http://nitrous.io if your ruby version is below 1.9.3, for rails version run "gem install rails --version=3.2.15".
 %h3 Feature 1.1 - View a list of their Restaurants
 :ruby
   code = <<-HEREDOC
-  rails new rails_reviews --skip-test-unit
+  rails _3.2.15_ new rails_reviews --skip-test-unit
   cd rails_reviews
   rails generate resource Restaurant name:string phone:string
   rake db:migrate

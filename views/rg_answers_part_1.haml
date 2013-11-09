@@ -3,10 +3,19 @@
     RG! Answers - Part 1
   %p RG Answers (Rails Girls Answers) is the newest competitor to Yahoo! Answers.  It allows users to pose a question.  Under each question, users can give answers and vote on the best ones.
 %h3 User should be able to...
+%h3 Feature 1.0 - Verify versions
+:ruby
+   code = <<-HEREDOC
+   ruby -v
+   rails -v
+   HEREDOC
+= tutorial_for("plain", "Check that ruby = 1.9.3 and rails = 3.2.15", code)
+.alert.alert-success Consider using http://nitrous.io if your ruby version is below 1.9.3, for rails version run "gem install rails --version=3.2.15".
+
 %h3 Feature 1.1 - View a list of Questions
 :ruby
   code = <<-HEREDOC
-  rails new rg_answers --skip-test-unit
+  rails _3.2.15_ new rg_answers --skip-test-unit
   cd rg_answers
   rails generate resource Question name:string reason:string
   rake db:migrate

@@ -3,10 +3,19 @@
     Bucket List - Part 1
   %p Bucket List is an application that allows users to keep a list what they want to do in life (e.g. "Buckets").  Users can enter intermediate "steps" under each Bucket that would help them achieve their goals.
 %h3 User should be able to...
+%h3 Feature 1.0 - Verify versions
+:ruby
+  code = <<-HEREDOC
+  ruby -v
+  rails -v
+  HEREDOC
+= tutorial_for("plain", "Check that ruby = 1.9.3 and rails = 3.2.15", code)
+.alert.alert-success Consider using http://nitrous.io if your ruby version is below 1.9.3, for rails version run "gem install rails --version=3.2.15".
+
 %h3 Feature 1.1 - View a list of their Bucket Lists
 :ruby
   code = <<-HEREDOC
-  rails new bucket_list --skip-test-unit
+  rails _3.2.15_ new bucket_list --skip-test-unit
   cd bucket_list
   rails generate resource List name:string reason:string
   rake db:migrate

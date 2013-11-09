@@ -3,10 +3,18 @@
     Event Tracker - Part 1
   %p Event Tracker is an application that allows users to keep track of who is particpating in different events.  Users can enter participant names under each Event that help manage the event planning.
 %h3 User should be able to...
+%h3 Feature 1.0 - Verify versions
+:ruby
+  code = <<-HEREDOC
+  ruby -v
+  rails -v
+  HEREDOC
+= tutorial_for("plain", "Check that ruby = 1.9.3 and rails = 3.2.15", code)
+.alert.alert-success Consider using http://nitrous.io if your ruby version is below 1.9.3, for rails version run "gem install rails --version=3.2.15".
 %h3 Feature 1.1 - View a list of their Events
 :ruby
   code = <<-HEREDOC
-  rails new event_tracker --skip-test-unit
+  rails _3.2.15_ new event_tracker --skip-test-unit
   cd event_tracker
   rails generate resource Event name:string description:string location:string
   rake db:migrate
