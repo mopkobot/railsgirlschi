@@ -5,8 +5,8 @@
 %h3 User should be able to...
 %h3 Feature 2.1 - See a pretty site!
 %p Let's dress up the app a little with some styling.
-%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
-%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
+%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework.
+%p For more info, check out <a href="http://getbootstrap.com/">http://getbootstrap.com/</a>.
 
 
 
@@ -41,11 +41,11 @@
     <%= csrf_meta_tags %>
   </head>
   <body>
-   
+
     <div class="container">
       <%= yield %>
     </div>
-   
+
   </body>
   </html>
   HEREDOC
@@ -60,7 +60,7 @@
   </div>
 
   <table class="table table-striped">
-    <thead> 
+    <thead>
       <th>Event</th>
       <th>Actions</td>
     </thead>
@@ -77,7 +77,7 @@
           </td>
         </tr>
       <% end %>
-    </tbody> 
+    </tbody>
   </table>
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/events/index.html.erb</code>, add a hero-unit and a table around existing code.", code, [*1..26])
@@ -263,7 +263,7 @@
   <h2><%= @event.name %></h2>
   <h3><%= @event.description %></h3>
   <p><%= @event.location %></p>
-  
+
   <h3>Participants</h3>
   <ul>
   <% @event.participants.each do |single_participant| %>
@@ -311,7 +311,7 @@
     <p>Planning an event? Track the participants here!</p>
     <p><%= link_to "Create New Event", new_event_url, :class => "brn btn-primary btn-large" %></p>
   </div>
-  
+
   <table class="table table-striped">
     <thead>.
       <th>Event</th>
@@ -370,7 +370,7 @@
   <h2><%= @event.name %></h2>
   <h3><%= @event.description %></h3>
   <p><%= @event.location %></p>
-  
+
   <h3>Participants</h3>
   <ul>
     <% @event.participants.each do |single_participant| %>
@@ -379,9 +379,9 @@
       </li>
     <% end %>
   </ul>
-  
+
   <h2>Add Participant</h2>
-  
+
   <%= form_for [@event, @event.participants.new]  do |form| %>
     <%= form.text_field :name %>
     <%= form.submit %>
@@ -389,10 +389,10 @@
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/events/show.html.erb</code>, add code to display the popularity label next to the person's name", code, [8])
 
-.alert.alert-success 
+.alert.alert-success
   Coaches, if there is time left over in this session, try some of the following:
   %ul
-    %li Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
+    %li Continue styling the site using Twitter Bootstrap (<a href="http://getbootstrap.com/" target="new">Twitter Bootstrap</a>).
     %li Extract duplicated logic in Events controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
     %li Order the participants by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
     %li Also, try the suggestions at the end of Part 1 (<a href="/event_tracker_part_1" target="new">Event Tracker Part 1</a>).

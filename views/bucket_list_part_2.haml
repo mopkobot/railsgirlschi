@@ -6,8 +6,8 @@
 %h3 User should be able to...
 %h3 Feature 2.1 - See a pretty site!
 %p Let's dress up the app a little with some styling.
-%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework. 
-%p For more info, check out <a href="http://twitter.github.com/bootstrap/">http://twitter.github.com/bootstrap/</a>.
+%p We're going to leverage the help of Twitter Bootstrap, a powerful front-end framework.
+%p For more info, check out <a href="http://getbootstrap.com/">http://getbootstrap.com/</a>.
 
 :ruby
   code = <<-HEREDOC
@@ -40,11 +40,11 @@
     <%= csrf_meta_tags %>
   </head>
   <body>
-   
+
     <div class="container">
       <%= yield %>
     </div>
-   
+
   </body>
   </html>
   HEREDOC
@@ -117,7 +117,7 @@
     end
 
     root :to => 'lists#index'
-    
+
     # The priority is based upon order of creation:
     # first created -> highest priority.
     ...
@@ -251,7 +251,7 @@
     end
 
     root :to => 'lists#index'
-              
+
     # The priority is based upon order of creation:
     # first created -> highest priority.
     ...
@@ -335,10 +335,10 @@
   HEREDOC
 = tutorial_for("ruby","Open <code>app/views/lists/show.html.erb</code>, using the named scopes, separate the steps into incomplete and complete", code, [*4..19])
 
-.alert.alert-success 
+.alert.alert-success
   Coaches, if there is time left over in this session, try some of the following:
   %ul
-    %ol Continue styling the site using Twitter Bootstrap (<a href="http://twitter.github.com/bootstrap/" target="new">Twitter Bootstrap</a>).
+    %ol Continue styling the site using Twitter Bootstrap (<a href="http://getbootstrap.com/" target="new">Twitter Bootstrap</a>).
     %ol Extract duplicated logic in Steps controller and use a before filter (<a href="http://guides.rubyonrails.org/action_controller_overview.html#filters" target="new">Filters</a>).
     %ol Order the steps by date created (<a href="http://guides.rubyonrails.org/active_record_querying.html#ordering" target="new">Ordering</a>).
     %ol Also, try the suggestions at the end of Part 1 (<a href="/bucket_list_part_1" target="new">Bucket List Part 1</a>).
